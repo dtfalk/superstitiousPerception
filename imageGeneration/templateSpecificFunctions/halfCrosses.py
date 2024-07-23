@@ -1,8 +1,8 @@
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from imports import *
-from constants import *
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from imageGeneration.imports import *
+from imageGeneration.constants import *
 
 
 # creates/returns the path to where we save the images and the arrays (within a "stimuli" folder).

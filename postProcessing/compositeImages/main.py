@@ -2,7 +2,7 @@ import sys
 import os
 
 # Add the parent directory to the system path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append( os.path.dirname(os.path.dirname(os.path.dirname(os.path.join(os.path.abspath(__file__))))))
 
 from postProcessing.compositeImages.templateSpecificFunctions.fullscreenCrosses import main as fullscreen
 from postProcessing.compositeImages.templateSpecificFunctions.halfscreenCrosses import main as halfscreen

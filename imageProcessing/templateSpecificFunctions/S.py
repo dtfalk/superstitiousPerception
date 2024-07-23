@@ -1,11 +1,11 @@
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from helpers.imports import *
-from helpers.constants import *
-from helpers.weightsAndDistances import *
-from helpers.loadingAndSaving import *
-from helpers.batching import *
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from imageProcessing.helpers.imports import *
+from imageProcessing.helpers.constants import *
+from imageProcessing.helpers.weightsAndDistances import *
+from imageProcessing.helpers.loadingAndSaving import *
+from imageProcessing.helpers.batching import *
 
 # get the save and loading paths
 def getPaths():

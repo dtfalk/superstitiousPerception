@@ -1,7 +1,7 @@
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from generalStatistics.helpers.imports import *
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.join(os.path.abspath(__file__)))))))
+from postProcessing.generalStatistics.helpers.imports import *
 
 validFolderNames = ['anyAll', 'borders', 'gaussian', 'linear', 'quadratic', 'unweighted', 'logarithmic', 'central']
 

@@ -1,9 +1,9 @@
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from helpers.imports import *
-from helpers.constants import *
-from helpers.loadingAndSaving import loadStimuli
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from imageProcessing.helpers.imports import *
+from imageProcessing.helpers.constants import *
+from imageProcessing.helpers.loadingAndSaving import loadStimuli
 
 
 def pearsons(stimuli, weightMatrices, weightedMeanDifferences, summedWeightMatrices):

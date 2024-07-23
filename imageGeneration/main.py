@@ -1,7 +1,7 @@
 import sys
 import os
 
-# Add the parent directory to the system path
+# # Add the parent directory to the system path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from imageGeneration.templateSpecificFunctions.fullCrosses import main as fullCrosses
@@ -10,8 +10,8 @@ from imageGeneration.templateSpecificFunctions.hi import main as hi
 from imageGeneration.templateSpecificFunctions.features import main as features
 from imageGeneration.templateSpecificFunctions.sImage import main as sImage
 from imageGeneration.stimuli import main as stimuli
-from constants import *
-from imports import *
+from imageGeneration.constants import *
+from imageGeneration.imports import *
 
 # run the entire arrays/image making process
 def main():

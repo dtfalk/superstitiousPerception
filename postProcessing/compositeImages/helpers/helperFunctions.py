@@ -1,7 +1,7 @@
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from compositeImages.helpers.imports import *
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from postProcessing.compositeImages.helpers.imports import *
 from multiprocessing import Pool
 import pandas as pd
 import numpy as np
