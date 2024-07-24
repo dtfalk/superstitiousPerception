@@ -2,7 +2,8 @@
 1. use permutation test to check rank order on top 100 and top 10? Spearman should only be used for >500 samples according to scipy.stats.pearsonr documentation. Should prolly just look into the metric itself.
 2. Principal component analysis
 
-**Author: David Tobias Falk**
+**Author**: David Tobias Falk
+
 **Contact Info:**
     Email: dtfalk@uchicago.edu, davidtobiasfalk@gmail.com
     Cell: 1-413-884-2553 (please text first or I will assume that you are spam)
