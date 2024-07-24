@@ -44,7 +44,7 @@ The code for this part of this task is located in the **imageGeneration** folder
 
 The reason that we store both arrays and images is that images are essentially 2-dimensional arrays. Each pixel of an image (an element of an array) is an RGB value. The format in which images are stored (jpg, png, etc...) are slow in terms of loading and modifying, so for our computations we also store each image as a numpy array because array computations are faster, and numpy array operations are just about as fast as they get. Also note that we can store multiple images as a 3-dimensional array. If I want to store 10 images, with each image being size 51 x 51, then this array would have size of (10, 51, 51). Pretty neat, huh? Maybe not, but I find it neat, and this is my document so if you want to know what is going on, then you will be subjected to me pointing out things I think are fun and neat, even if they may be boring and/or obvious to you. Tough luck.
 
-This folder has 3 relevant components: the **templateSpecificFunctions** folder, the **stimuli.py** file, and the **constants.py** file. 
+This folder has three relevant components: the **templateSpecificFunctions** folder, the **stimuli.py** file, and the **constants.py** file. 
 
 ### **Template Specific Functions Folder**
 This folder contains the code for creating each template scheme. Currently, there are fullscreen crosses, halfscreen crosses, an S template, and the hiAnalysis/features code. The fullscreen crosses are crosses (think of the "+" sign) that extend from all the way to the left of the image to all the way to the right of the image and from the very bottom of the image to the very top of the image. The halfscreen crosses are the same thing except that the crosses extend from halfway to the left to halfway to the right, and half way from the bottom to halfway to the top. All of the template schemes are meant to be centered. The hiAnalysis/features code is a template "H" and template "I", which are identical images, except that they are rotated 90 degrees. The features part is each individual leg or cross in the H/I templates. It lets us analyze the component parts of each image. I will hopefully explain why analyzing the components is important in this or some follow up document, but this document is meant to be about the code, so I won't go on a tangent. The S template is a large S that relates to Shannon Heald/Howard Nusbaums' original go at this experiment.
@@ -61,6 +61,28 @@ This contains various constants for easy modification of the code. Some importan
 
 ## **Image Processing**
 This folder is meant to analyze the images using a weighted pearson R score. A pearson R score tests the similarity between two 1-dimenstional vectors in a given vector space. Each image is a 51 x 51 2-dimensional array. If we flatten the array, then it becomes a 1-dimensional array with 2601 entries. The pearson r score gives us some idea of the similarity between the 1-dimensional version of each template and the 1-dimensional version of each of the one million stimuli. We weight the array according to multiple different weighting schemes. The idea is that using an unweighted array gives equal weight to each pixel in the image. However, we are telling subjects that the templates are centered. So we hypothesize that the pixels in the middle of the screen/near the actual template are more relevant to the subject than the pixels that are way off to the side of the image. I will (hopefully) create other documentation explaining each of these weighting schemes, but if you are curious then you can look in the **weightsAndDistances.py** file in the **imageProcessing/helpers** folder if you want to examine the different types of weighting schemes. The results to all these analyses are stored in the results folder as .npy files. In the post processing stage we break up the analyses by weighting scheme as write them to human readable csv files.
+
+### **Important note**
+Part of the speed of this program on my personal device relates to it using GPU processing instead of CPU processing. The way to think about the difference between these two is that the CPU is meant to handle a lot of different types of operations on your computer. As a result it has a lot of flexibility in what it can do, but it does each of these things slower. Furthermore, the CPU only has a couple (typically < 10) "cores". Cores are like workers. Having 4 workers means that your computer can do 4 things at a given time. GPUs on the other hand do very few things, and all of the things it does are fast and highly optimized. It also has thousands of cores, meaning it can do thousands of things at the same time. As you can image, if you have a set of tasks that your GPU has the ability to do (e.g. array calculations) and you properly take advantage of the thousands of cores (workers), then your code will run much much quicker. In this case, it likely does things hundreds if not thousands of times faster. This code does just that. It uses a python package called Cupy. It only works with computers that have Cupy compatible Nvidia GPUs. Cupy is basically Numpy, except Numpy does the operations on your CPU and Cupy does the operations on your GPU. If you happen to have a Cupy compatible Nvidia GPU, then use that!! This only applies to the image processing portion of the code, so everything that comes before or after will run at roughly the same speed (on my device this code takes about 10-20 minutes to run with 1 million images and all of the templates/weighting schemes). If your computer does not have such a GPU, then there are two changes you will need to make. First, you will need to use the **noCupySuperstitiousPerceptionEnvironment.yml** file for creating your virtual environment. This excludes the Cupy package from what packages get downloaded. Second, you will need to make a small change to the **imageProcessing/helpers/imports.py** file. Currently this file looks like this:
+
+```
+from cupy import sum, sqrt, square, zeros, load, uint8, pad, column_stack, nonzero, indices, ones_like, float32, log, exp, ones, save
+#from numpy import sum, sqrt, square, zeros, load, uint8, pad, column_stack, nonzero, indices, ones_like, float32, log, exp, ones, save
+import time
+import csv
+```
+
+You need to comment out the first line by adding a "#" to the beginning of the first line and uncomment the second line by removing the "#" from the beginning of the second line. After doing this your code should look like this: 
+
+```
+#from cupy import sum, sqrt, square, zeros, load, uint8, pad, column_stack, nonzero, indices, ones_like, float32, log, exp, ones, save
+from numpy import sum, sqrt, square, zeros, load, uint8, pad, column_stack, nonzero, indices, ones_like, float32, log, exp, ones, save
+import time
+import csv
+```
+
+All this does is switch the code from trying to use the Cupy (GPU) version of things to using the Numpy (CPU) version of things. This is all of the changes you should need to make.
+
 
 ## **Post Processing**
 This folder contains the code for what we do once we have the pearson r correlation scores for each stimuli/template/weightingScheme combination. There are currently four operations contained in this folder: **generating CSV files with Pearson R scores**, **calculating general statistics**, **calculating composite images**, and **performing cross correlation analyses**. Let's give a description of each one.
