@@ -1,12 +1,12 @@
-**TODOs**
-1. use permutation test to check rank order on top 100 and top 10? Spearman should only be used for >500 samples according to scipy.stats.pearsonr documentation. Should prolly just look into the metric itself.
-2. Principal component analysis
-
 **Author**: David Tobias Falk
 
 **Contact Info:**
     Email: dtfalk@uchicago.edu, davidtobiasfalk@gmail.com
     Cell: 1-413-884-2553 (please text first or I will assume that you are spam)
+
+**TODOs**
+1. use permutation test to check rank order on top 100 and top 10? Spearman should only be used for >500 samples according to scipy.stats.pearsonr documentation. Should prolly just look into the metric itself.
+2. Principal component analysis
 
 # **Superstitious Perception Task**
 Hello! My name is David Falk, currently an employee at the APEX Lab at the University of Chicago. This repo contains a PsychoPy version of an experiment and a lot of code for creating and analyzing images. This README will primarily focus on the image generation and analysis code because the experimental paradigm is currently in flux. When that is sorted out I will make those modifications and (hopefully) update this document. The image creation and analysis code is broken up into three parts: **image generation**, **image processing**, and **post processing**. I will go into how each of these parts of the code work. Every folder has a **main.py** file that runs every bit of code in that folder. So the main file in the root of the directory runs all three of the sections mentioned above and the main file in the image generation folder runs all of the image generation code. All of the main files follow the same format. Below is the main file in the image processing folder.
