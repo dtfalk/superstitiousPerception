@@ -8,6 +8,7 @@ from postProcessing.compositeImages.main import main as compositeImages
 from postProcessing.crossCorrelations.main import main as crossCorrelation
 from postProcessing.generalStatistics.main import main as generalStatistics
 from postProcessing.csvGeneration.main import main as csvGeneration
+from postProcessing.principalComponentAnalysis.main import main as principalComponentAnalysis
 import time
 
 
@@ -18,6 +19,7 @@ def main():
     generalStatistics()
     compositeImages()
     crossCorrelation()
+    principalComponentAnalysis()
     print('\n    Post-processing runtime: %.4f'%(time.time() - startTime))
 
 if __name__ == '__main__':

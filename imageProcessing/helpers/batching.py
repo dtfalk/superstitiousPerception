@@ -48,7 +48,7 @@ def pearsons(stimuli, weightMatrices, weightedMeanDifferences, summedWeightMatri
 # process a batch of stimuli
 def processAndStoreResults(arrayPath, weightMatrices, weightedMeanDifferences, summedWeightMatrices, results):
 
-    startTimeBatch = time.time()
+    #startTimeBatch = time.time()
     # load the stimuli, stimuli numbers, start stimuli number and end stimuli number for the current batch
     stimuli, start, end = loadStimuli(arrayPath)
     #print('Running stimuli %d to %d'%(start, end))
