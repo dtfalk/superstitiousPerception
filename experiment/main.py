@@ -1,7 +1,6 @@
 # tests have been run and there is no overlapping stimuli
 from psychopy import visual, core
 from helperFunctions import *
-import random
 
 # The experiment itself
 def experiment(weightingScheme, blockType, targetStimuli, distractorStimuli, savePath, win, mouse):
@@ -40,7 +39,10 @@ def experiment(weightingScheme, blockType, targetStimuli, distractorStimuli, sav
 
                 # saves user's response
                 responseTime = startTime.getTime()
-                recordResponse(subjectName, subjectNumber, weightingScheme, blockType, stimulusNumber, imageType, response, responseTime, savePath)
+                recordResponse(subjectName, subjectNumber, weightingScheme, blockType, stimulusNumber, imageType, response, str(responseTime), savePath)
+                counter += 1
+                event.clearEvents()
+                time.sleep(0.2)
             
         # while the trial continues on just keep the image on the screen until they give a response
         if not reset:
@@ -48,6 +50,7 @@ def experiment(weightingScheme, blockType, targetStimuli, distractorStimuli, sav
             image.draw()
             mouse.setVisible(False)
             win.flip()
+            mouse.setVisible(False)
             
         # end of a trial
         else:
@@ -92,33 +95,53 @@ if __name__ == '__main__':
     blocktypes = ['noCorrelation', 'iCorrelation']
 
     weightingScheme = random.choice(weightingSchemes)
+    #weightingScheme = 'unweighted'
     initialBlockType = random.choice(blocktypes)
+    #initialBlockType = 'iCorrelation'
 
     experimentExplanation(win, 'H', mouse)
+    event.clearEvents()
     realInstructions(win, 'H', mouse)
+    event.clearEvents()
     if weightingScheme == 'gaussian':
         if initialBlockType == 'noCorrelation':
             experiment('gaussian', 'noCorrelation', blockOneGaussianHStimuli, gaussianNoCorrelationStimuli, saveFolder, win, mouse)
+            event.clearEvents()
             breakScreen(win, mouse)
+            event.clearEvents()
             showTemplate('H', win, mouse)
+            event.clearEvents()
             experiment('gaussian', 'iCorrelation', blockTwoGaussianHStimuli, gaussianIStimuli, saveFolder, win, mouse)
+            event.clearEvents()
         else:
             experiment('gaussian', 'iCorrelation', blockOneGaussianHStimuli, gaussianIStimuli, saveFolder, win, mouse)
+            event.clearEvents()
             breakScreen(win, mouse)
+            event.clearEvents()
             showTemplate('H', win, mouse)
+            event.clearEvents()
             experiment('gaussian', 'noCorrelation', blockTwoGaussianHStimuli, gaussianNoCorrelationStimuli, saveFolder, win, mouse)
+            event.clearEvents()
 
     else:
         if initialBlockType == 'noCorrelation':
             experiment('unweighted', 'noCorrelation', blockOneUnweightedHStimuli, unweightedNoCorrelationStimuli, saveFolder, win, mouse)
+            event.clearEvents()
             breakScreen(win, mouse)
+            event.clearEvents()
             showTemplate('H', win, mouse)
+            event.clearEvents()
             experiment('unweighted', 'iCorrelation', blockTwoUnweightedHStimuli, unweightedIStimuli, saveFolder, win, mouse)
+            event.clearEvents()
         else:
             experiment('unweighted', 'iCorrelation', blockOneUnweightedHStimuli, unweightedIStimuli, saveFolder, win, mouse)
+            event.clearEvents()
             breakScreen(win, mouse)
+            event.clearEvents()
             showTemplate('H', win, mouse)
-            experiment('unweighted', 'noCorrelation', blockOneUnweightedHStimuli, unweightedNoCorrelationStimuli, saveFolder, win, mouse)
+            event.clearEvents()
+            experiment('unweighted', 'noCorrelation', blockTwoUnweightedHStimuli, unweightedNoCorrelationStimuli, saveFolder, win, mouse)
+            event.clearEvents()
         
 
     # exit screen thanking participant

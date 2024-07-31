@@ -8,7 +8,10 @@ from constants import *
 
 imageWidth, imageHeight = 51, 51
 imageSize = imageWidth * imageHeight
-scaleFactor = 0.5 * (winHeight / imageHeight)
+# scaleFactor = 0.5 * (winHeight / imageHeight)
+# scaleFactor = winHeight / 768
+scaleFactor = winWidth / 1024
+
 scaledImageSize = (imageWidth * scaleFactor, imageHeight * scaleFactor)
 
 # This block of code handles lab streaming layer functionality
@@ -108,7 +111,7 @@ def recordResponse(subjectName, subjectNumber, weightingScheme, blockType, stimu
     filePath = os.path.join(savePath, f'{blockType}.csv')
 
     # prepare the header and the data
-    header = ['Subject Name', 'Subject Number', 'Weighting Scheme', 'Distractor Type', 'Stimulus Number', 'Stimulus Type', 'Subject Response', 'Response Time']
+    header = ['Subject Name', 'Subject Number', 'Weighting Scheme', 'Block Type', 'Stimulus Number', 'Stimulus Type', 'Subject Response', 'Response Time']
     data = [subjectName, subjectNumber, weightingScheme, blockType, stimulusNumber, stimulusType, response, responseTime]
 
     # if csv file does not exist, then write the header and the data
@@ -133,7 +136,7 @@ def calculateDprime(hits, misses, correctRejections, falseAlarms):
 
     # values for fixing extreme d primes
     halfHit = 0.5 / (hits + misses)
-    halfFalseAlarm = 0.5 / (misses + correctRejections)
+    halfFalseAlarm = 0.5 / (falseAlarms + correctRejections)
 
     if hitRate == 1:
         hitRate = 1 - halfHit
@@ -401,7 +404,7 @@ def exitScreen(win, mouse):
 def selectStimulus(targetStimuli, distractorStimuli, weightingScheme, win):
 
     # select a stimulus and remove it from its associated list
-    masterList = targetStimuli.copy() + distractorStimuli.copy()
+    masterList = targetStimuli + distractorStimuli
     stimulus = random.choice(masterList)
     if stimulus in targetStimuli:
         imageType = 'target'
