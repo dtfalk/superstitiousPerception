@@ -1,137 +1,127 @@
 # tests have been run and there is no overlapping stimuli
 from psychopy import visual, core
-from random import randint
 from helperFunctions import *
-    
-showTempEveryConstant = 1.7
+import random
 
 # The experiment itself
-def experiment(gametype, dataSavePath, outlet, win, metric, distanceType, letter, templateShowType):
+def experiment(weightingScheme, blockType, targetStimuli, distractorStimuli, savePath, win, mouse):
     win.color = altBackgroundColor
-
-    # get images for stimuli and preps their paths
-    curDir = os.path.dirname(__file__)
-    Himages, Iimages = getImages(metric, distanceType, gametype)
-    images = Himages + Iimages
-    imagesDir = os.path.join(curDir, '..', '..', 'stimuli', 'images')
-    extension = '.png'
 
     # various variables for handling the game
     reset = False
     startTime = core.Clock()
-    firstWrite = True # check to make sure that we are not overwriting an existing file
-
-    # initialize a starting image
-    while True:
-        randomIndex = randint(1, len(images))
-        stimulusNumber = images[randomIndex - 1]
-        imagePath = os.path.join(imagesDir, str(stimulusNumber) + extension)
-        if templateShowType == 'every':
-            image = visual.ImageStim(win = win, image = imagePath, size = (scaledImageSize[0] / showTempEveryConstant, scaledImageSize[1] / showTempEveryConstant), units = 'pix', pos = ((screenWidth / 10) - scaledImageSize[0] / 2, 0))
-            templateImagePath = os.path.join(os.path.dirname(__file__), 'templates', '%s.png'%letter)
-            templateImage = visual.ImageStim(win = win, image = templateImagePath, size = (scaledImageSize[0] / showTempEveryConstant, scaledImageSize[1] / showTempEveryConstant), units = 'pix', pos = ((scaledImageSize[0] / 2) - (screenWidth / 10), 0))
-        else: 
-            image = visual.ImageStim(win = win, image = imagePath, size = scaledImageSize, units = 'pix')
-        images.remove(stimulusNumber)
-        break
     
+    # select an initial image
+    image, stimulusNumber, imageType = selectStimulus(targetStimuli, distractorStimuli, weightingScheme, win)
+
     # Loop for handling events
     while True:
-        
+        mouse.setVisible(False)
+
         # handling key presses
         for key in event.getKeys():
+
+            # quit the experiment key
             if key == 'escape':
                 win.close()
                 core.quit()
+
+            # handle response keys (y for "yes, the stimulus is here". "n" otherwise)
             elif key == 'y' or key == 'n':
-                reset = True # indicates we will reset the experiment
+
+                # indicates we will reset the experiment once a response is selected
+                reset = True
 
                 # user's response to a stimulus
                 if key == 'y':
-                    response = True
+                    response = 'target'
                 else:
-                    response = False
+                    response = 'distractor'
 
                 # saves user's response
-                if gametype == 'real':
-                    responseTime = startTime.getTime()
-                    pushSample(outlet, str(response))
-                    recordResponse(dataSavePath, response, responseTime, stimulusNumber, firstWrite, letter)
-                    firstWrite = False
+                responseTime = startTime.getTime()
+                recordResponse(subjectName, subjectNumber, weightingScheme, blockType, stimulusNumber, imageType, response, responseTime, savePath)
             
-        # while the trial continues on
+        # while the trial continues on just keep the image on the screen until they give a response
         if not reset:
-            if templateShowType == 'every':
-                templateImage.draw()
+            mouse.setVisible(False)
             image.draw()
+            mouse.setVisible(False)
             win.flip()
             
         # end of a trial
         else:
+
+            # clear the events 
             reset = False
             win.flip()
             event.clearEvents()
             
-            # end trial if we have shown all of the images
-            if (len(images) == 0):
+            # end experiment if we have shown all of the images
+            if (len(targetStimuli) == 0 and len(distractorStimuli) == 0):
                 return
             
-            # get a new image
-            randomIndex = randint(1, len(images))
-            stimulusNumber = images[randomIndex - 1]
-            imagePath = os.path.join(imagesDir, str(stimulusNumber) + extension)
-            if templateShowType == 'every':
-                image = visual.ImageStim(win = win, image = imagePath, size = (scaledImageSize[0] / showTempEveryConstant, scaledImageSize[1] / showTempEveryConstant), units = 'pix', pos = ((screenWidth / 10) - scaledImageSize[0] / 2, 0))
-                templateImagePath = os.path.join(os.path.dirname(__file__), 'templates', '%s.png'%letter)
-                templateImage = visual.ImageStim(win = win, image = templateImagePath, size = (scaledImageSize[0] / showTempEveryConstant, scaledImageSize[1] / showTempEveryConstant), units = 'pix', pos = ((scaledImageSize[0] / 2) - (screenWidth / 10), 0))
-            else:
-                image = visual.ImageStim(win = win, image = imagePath, size = scaledImageSize, units = 'pix')
-            images.remove(stimulusNumber)
-            
+            # otherwise select a new image
+            image, stimulusNumber, imageType = selectStimulus(targetStimuli, distractorStimuli, weightingScheme, win)
+            mouse.setVisible(False)
+
             # reset the trial timer
             startTime.reset()
-            win.callOnFlip(pushSample, outlet = outlet, tag = 'STRT')
+
 
 # handles the overall experiment flow
 if __name__ == '__main__':
     
-    # Create LSL outlet
-    outlet = initializeOutlet()
-    
     # initialize window and mouse object (set mouse to invisible)
-    win = visual.Window(size = screenSize, fullscr = True, color = backgroundColor)
+    win = visual.Window(size = (winWidth, winHeight), pos = (winX, winY), fullscr = True, color = backgroundColor)
     mouse = event.Mouse(win = win)
     mouse.setVisible(False)
     
     # get user info and where to store their results
-    subjectName, subjectNumber, metric, distanceType, templateShowType, dataSavePath = openingScreen(win)
+    subjectName, subjectNumber = getSubjectInfo(win, mouse)
+    saveFolder = os.path.join(os.path.dirname(__file__), 'results', subjectNumber)
+    os.makedirs(saveFolder, exist_ok = True)
 
-    # determines whether we ask for them to search for the "H"s or "I"s first
-    letterList = ['H', 'I']
-    randomInt = randint(0,1)
-    if randomInt == 1:
-        letterList = ['I', 'H']
-    
-    firstIteration = True
-    for letter in letterList:
+    # gets the top rated Hs, top rated Is and noisy images
+    gaussianHStimuli, gaussianIStimuli, gaussianNoCorrelationStimuli, unweightedHStimuli, unweightedIStimuli, unweightedNoCorrelationStimuli = getStimuli()
+    blockOneGaussianHStimuli, blockTwoGaussianHStimuli = splitStimuli(gaussianHStimuli)
+    blockOneUnweightedHStimuli, blockTwoUnweightedHStimuli = splitStimuli(unweightedHStimuli)
 
-        # keeps track of the first letter the subjects were asked to look for
-        if firstIteration:
-            firstLetter = letter
-            firstIteration = False
+    # selecting different experimental and block schemes
+    weightingSchemes = ['gaussian', 'unweighted']
+    blocktypes = ['noCorrelation', 'iCorrelation']
+
+    weightingScheme = random.choice(weightingSchemes)
+    initialBlockType = random.choice(blocktypes)
+
+    experimentExplanation(win, 'H', mouse)
+    realInstructions(win, 'H', mouse)
+    if weightingScheme == 'gaussian':
+        if initialBlockType == 'noCorrelation':
+            experiment('gaussian', 'noCorrelation', blockOneGaussianHStimuli, gaussianNoCorrelationStimuli, saveFolder, win, mouse)
+            breakScreen(win, mouse)
+            showTemplate('H', win, mouse)
+            experiment('gaussian', 'iCorrelation', blockTwoGaussianHStimuli, gaussianIStimuli, saveFolder, win, mouse)
+        else:
+            experiment('gaussian', 'iCorrelation', blockOneGaussianHStimuli, gaussianIStimuli, saveFolder, win, mouse)
+            breakScreen(win, mouse)
+            showTemplate('H', win, mouse)
+            experiment('gaussian', 'noCorrelation', blockTwoGaussianHStimuli, gaussianNoCorrelationStimuli, saveFolder, win, mouse)
+
+    else:
+        if initialBlockType == 'noCorrelation':
+            experiment('unweighted', 'noCorrelation', blockOneUnweightedHStimuli, unweightedNoCorrelationStimuli, saveFolder, win, mouse)
+            breakScreen(win, mouse)
+            showTemplate('H', win, mouse)
+            experiment('unweighted', 'iCorrelation', blockTwoUnweightedHStimuli, unweightedIStimuli, saveFolder, win, mouse)
+        else:
+            experiment('unweighted', 'iCorrelation', blockOneUnweightedHStimuli, unweightedIStimuli, saveFolder, win, mouse)
+            breakScreen(win, mouse)
+            showTemplate('H', win, mouse)
+            experiment('unweighted', 'noCorrelation', blockOneUnweightedHStimuli, unweightedNoCorrelationStimuli, saveFolder, win, mouse)
         
-        # explain the experiment to the subject
-        experimentExplanation(win, letter)
-
-        # gives the subject some practice trials.
-        practiceInstructions(win, letter, templateShowType)
-        experiment('practice', dataSavePath, outlet, win, metric, distanceType, letter, templateShowType)
-        win.color = backgroundColor
-    
-        # move onto the real experiment
-        realInstructions(win, letter, templateShowType)
-        experiment('real', dataSavePath, outlet, win, metric, distanceType, letter, templateShowType)
-        win.color = backgroundColor
 
     # exit screen thanking participant
-    exitScreen(win)
+    exitScreen(win, mouse)
+
+    writeSummaryData(subjectName, subjectNumber, weightingScheme, initialBlockType, saveFolder)
