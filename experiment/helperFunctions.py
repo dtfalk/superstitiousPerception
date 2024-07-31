@@ -8,7 +8,7 @@ from constants import *
 
 imageWidth, imageHeight = 51, 51
 imageSize = imageWidth * imageHeight
-scaleFactor = winHeight / imageHeight
+scaleFactor = 0.5 * (winHeight / imageHeight)
 scaledImageSize = (imageWidth * scaleFactor, imageHeight * scaleFactor)
 
 # This block of code handles lab streaming layer functionality
