@@ -94,9 +94,10 @@ def main():
     weightingSchemes = ['gaussian', 'unweighted']
     blocktypes = ['noCorrelation', 'iCorrelation']
 
-    weightingScheme = random.choice(weightingSchemes)
-    #weightingScheme = 'unweighted'
-    initialBlockType = random.choice(blocktypes)
+    weightingScheme, initialBlockType = selectExperimentType()
+    # weightingScheme = random.choice(weightingSchemes)
+    # #weightingScheme = 'unweighted'
+    # initialBlockType = random.choice(blocktypes)
     #initialBlockType = 'iCorrelation'
 
     experimentExplanation(win, 'H', mouse)

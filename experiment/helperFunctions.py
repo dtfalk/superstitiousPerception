@@ -421,3 +421,39 @@ def selectStimulus(targetStimuli, distractorStimuli, weightingScheme, win):
 
     return image, stimulus.replace('.png', ''), imageType
     
+def selectExperimentType():
+    filepath = os.path.join(os.path.dirname(__file__), 'experimentUsages.csv')
+    header = ['Experiment Type', 'Usage']
+    experimentTypes = ['gaussian noCorrelation', 'gaussian iCorrelation', 'unweighted noCorrelation', 'unweighted iCorrelation']
+
+    try:
+        if not os.path.exists(filepath):
+            chosenExperimentType = random.choice(experimentTypes)
+            usageDict = {expType: 1 if expType == chosenExperimentType else 0 for expType in experimentTypes}
+
+        else:
+            with open(filepath, mode='r', newline='') as f:
+                reader = csv.DictReader(f)
+                usageDict = {row['Experiment Type']: int(row['Usage']) for row in reader}
+
+            totalUsage = sum(usageDict.values())
+            if totalUsage == 0:
+                chosenExperimentType = random.choice(experimentTypes)
+            else:
+                weights = [1 / ((usage + 1) ** 2) for usage in usageDict.values()]
+                chosenExperimentType = random.choices(list(usageDict.keys()), weights=weights)[0]
+
+            usageDict[chosenExperimentType] += 1
+
+        with open(filepath, mode='w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=header)
+            writer.writeheader()
+            for expType, usage in usageDict.items():
+                writer.writerow({'Experiment Type': expType, 'Usage': usage})
+
+        weightingScheme, initialBlockType = chosenExperimentType.split()
+        return weightingScheme, initialBlockType
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None, None
