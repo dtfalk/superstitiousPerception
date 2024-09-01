@@ -2,6 +2,7 @@ import os
 import csv
 import time
 import random
+import math
 from scipy.stats import norm
 from psychopy import visual, core, event
 from constants import *
@@ -194,7 +195,10 @@ def writeSummaryData(subjectName, subjectNumber, weightingScheme, initialBlockTy
                 falseAlarms += 1
             else:
                 correctRejections += 1
-        
+        print(hits)
+        print(misses)
+        print(falseAlarms)
+        print(correctRejections)
         dprime = calculateDprime(hits, misses, correctRejections, falseAlarms)
         summaryDatadata.append(str(dprime))
 
@@ -227,7 +231,10 @@ def writeSummaryData(subjectName, subjectNumber, weightingScheme, initialBlockTy
                 falseAlarms += 1
             else:
                 correctRejections += 1
-        
+        print(hits)
+        print(misses)
+        print(falseAlarms)
+        print(correctRejections)
         dprime = calculateDprime(hits, misses, correctRejections, falseAlarms)
         summaryDatadata.append(str(dprime))
 
@@ -237,7 +244,6 @@ def writeSummaryData(subjectName, subjectNumber, weightingScheme, initialBlockTy
         writer.writerow(summaryDataHeader)
         writer.writerow(summaryDatadata)
         
-
 
 # =======================================================================
 # =======================================================================
@@ -287,7 +293,7 @@ def experimentExplanation(win, letter, mouse):
     
     # text height and preparing the explanation text
     win.color = backgroundColor
-    height = 0.07
+    height = 0.06
     prompt = visual.TextStim(win = win, text = explanationText(letter), height = height,
                             color = textColor, wrapWidth = 1.9, alignText = 'left')
     
@@ -305,7 +311,7 @@ def experimentExplanation(win, letter, mouse):
         win.flip()
 
 # instructions for the real trials
-def realInstructions(win, letter, mouse):
+def realInstructions(win, letter, mouse, stimSize):
     
     # text height and preparing the instructions text
     win.color = backgroundColor
@@ -323,19 +329,19 @@ def realInstructions(win, letter, mouse):
                 core.quit()
                 return
             if key == continueKey:
-                showTemplate(letter, win, mouse)
+                showTemplate(letter, win, mouse, stimSize)
             return
         prompt.draw()
         win.flip()
 
 # shows the stimulus in the "show template once" condition
-def showTemplate(letter, win, mouse):
+def showTemplate(letter, win, mouse, stimSize):
 
     win.color = altBackgroundColor
     startTime = time.time()
     curDir = os.path.dirname(__file__)
     templateImagePath = os.path.join(curDir, 'templates', f'{letter}.png')
-    image = visual.ImageStim(win = win, image = templateImagePath, size = scaledImageSize, units = 'pix')
+    image = visual.ImageStim(win = win, image = templateImagePath, size = (stimSize, stimSize), units = 'pix')
 
     # wait for the user to press spacebar before the experiment continues
     while time.time() - startTime < 10:
@@ -400,8 +406,20 @@ def exitScreen(win, mouse):
 
 # =======================================================================
 # =======================================================================
+
+# bc the jackasses at psychopy have made this process insufferable
+def deg2pix(degrees, monitor):
+    screen_width = monitor.getWidth()
     
-def selectStimulus(targetStimuli, distractorStimuli, weightingScheme, win):
+    # Calculate the total visual angle subtended by the screen width in degrees
+    total_visual_angle_width = 2 * math.degrees(math.atan(screen_width / (2 * monitor.getDistance())))
+    
+    # Calculate the number of pixels per degree
+    pixels_per_degree = monitor.getSizePix()[0] / total_visual_angle_width
+    
+    return degrees * pixels_per_degree
+
+def selectStimulus(targetStimuli, distractorStimuli, weightingScheme, win, stimSize):
 
     # select a stimulus and remove it from its associated list
     masterList = targetStimuli + distractorStimuli
@@ -417,7 +435,7 @@ def selectStimulus(targetStimuli, distractorStimuli, weightingScheme, win):
     imagePath = os.path.join(os.path.dirname(__file__), 'stimuli', weightingScheme,  stimulus)
 
     # present the image
-    image = visual.ImageStim(win = win, image = imagePath, size = scaledImageSize, units = 'pix')
+    image = visual.ImageStim(win = win, image = imagePath, size = (stimSize, stimSize), units = 'pix')
 
     return image, stimulus.replace('.png', ''), imageType
     

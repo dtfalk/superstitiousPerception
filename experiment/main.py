@@ -1,17 +1,17 @@
 # tests have been run and there is no overlapping stimuli
-from psychopy import visual, core
+from psychopy import visual, core, monitors
 from helperFunctions import *
 
 # The experiment itself
-def experiment(subjectName, subjectNumber, weightingScheme, blockType, targetStimuli, distractorStimuli, savePath, win, mouse):
+def experiment(subjectName, subjectNumber, weightingScheme, blockType, targetStimuli, distractorStimuli, savePath, win, mouse, stimSize):
     win.color = altBackgroundColor
 
     # various variables for handling the game
     reset = False
-    startTime = core.Clock().reset()
+    startTime = core.Clock()
     
     # select an initial image
-    image, stimulusNumber, imageType = selectStimulus(targetStimuli, distractorStimuli, weightingScheme, win)
+    image, stimulusNumber, imageType = selectStimulus(targetStimuli, distractorStimuli, weightingScheme, win, stimSize)
 
     # Loop for handling events
     while True:
@@ -40,9 +40,10 @@ def experiment(subjectName, subjectNumber, weightingScheme, blockType, targetSti
                 # saves user's response
                 responseTime = startTime.getTime()
                 recordResponse(subjectName, subjectNumber, weightingScheme, blockType, stimulusNumber, imageType, response, str(responseTime), savePath)
-                counter += 1
                 event.clearEvents()
-                time.sleep(0.2)
+                win.color = altBackgroundColor
+                win.flip()
+                time.sleep(2)
             
         # while the trial continues on just keep the image on the screen until they give a response
         if not reset:
@@ -65,7 +66,7 @@ def experiment(subjectName, subjectNumber, weightingScheme, blockType, targetSti
                 return
             
             # otherwise select a new image
-            image, stimulusNumber, imageType = selectStimulus(targetStimuli, distractorStimuli, weightingScheme, win)
+            image, stimulusNumber, imageType = selectStimulus(targetStimuli, distractorStimuli, weightingScheme, win, stimSize)
             mouse.setVisible(False)
 
             # reset the trial timer
@@ -74,9 +75,23 @@ def experiment(subjectName, subjectNumber, weightingScheme, blockType, targetSti
 
 # handles the overall experiment flow
 def main():
-    
+
+    monitor = monitors.Monitor('main')
+
+    # Specify the physical size of the monitor in centimeters (width, height)
+    monitor.setSizePix([winWidth, winHeight]) 
+    monitor.setWidth(30.15)  
+    monitor.setDistance(60.96)  
+
+    # Get the size in pixels for 2 degrees of visual angle
+    stim_size_degrees = 2
+    stimSize = round(deg2pix(stim_size_degrees, monitor))
+
+    # Calculate the size of the stimulus in pixels
+    #stimSize = monitor.getSizePix()[0] * (stim_size_cm / monitor.getWidth())
+
     # initialize window and mouse object (set mouse to invisible)
-    win = visual.Window(size = (winWidth, winHeight), pos = (winX, winY), fullscr = True, color = backgroundColor)
+    win = visual.Window(size = (winWidth, winHeight), pos = (winX, winY), fullscr = True, monitor = monitor, color = backgroundColor)
     mouse = event.Mouse(win = win)
     mouse.setVisible(False)
     
@@ -91,57 +106,50 @@ def main():
     blockOneUnweightedHStimuli, blockTwoUnweightedHStimuli = splitStimuli(unweightedHStimuli)
 
     # selecting different experimental and block schemes
-    weightingSchemes = ['gaussian', 'unweighted']
-    blocktypes = ['noCorrelation', 'iCorrelation']
-
     weightingScheme, initialBlockType = selectExperimentType()
-    # weightingScheme = random.choice(weightingSchemes)
-    # #weightingScheme = 'unweighted'
-    # initialBlockType = random.choice(blocktypes)
-    #initialBlockType = 'iCorrelation'
 
     experimentExplanation(win, 'H', mouse)
     event.clearEvents()
-    realInstructions(win, 'H', mouse)
+    realInstructions(win, 'H', mouse, stimSize)
     event.clearEvents()
     if weightingScheme == 'gaussian':
         if initialBlockType == 'noCorrelation':
-            experiment(subjectName, subjectNumber, 'gaussian', 'noCorrelation', blockOneGaussianHStimuli, gaussianNoCorrelationStimuli, saveFolder, win, mouse)
+            experiment(subjectName, subjectNumber, 'gaussian', 'noCorrelation', blockOneGaussianHStimuli, gaussianNoCorrelationStimuli, saveFolder, win, mouse, stimSize)
             event.clearEvents()
             breakScreen(win, mouse)
             event.clearEvents()
-            showTemplate('H', win, mouse)
+            showTemplate('H', win, mouse, stimSize)
             event.clearEvents()
-            experiment(subjectName, subjectNumber, 'gaussian', 'iCorrelation', blockTwoGaussianHStimuli, gaussianIStimuli, saveFolder, win, mouse)
+            experiment(subjectName, subjectNumber, 'gaussian', 'iCorrelation', blockTwoGaussianHStimuli, gaussianIStimuli, saveFolder, win, mouse, stimSize)
             event.clearEvents()
         else:
-            experiment(subjectName, subjectNumber, 'gaussian', 'iCorrelation', blockOneGaussianHStimuli, gaussianIStimuli, saveFolder, win, mouse)
+            experiment(subjectName, subjectNumber, 'gaussian', 'iCorrelation', blockOneGaussianHStimuli, gaussianIStimuli, saveFolder, win, mouse, stimSize)
             event.clearEvents()
             breakScreen(win, mouse)
             event.clearEvents()
-            showTemplate('H', win, mouse)
+            showTemplate('H', win, mouse, stimSize)
             event.clearEvents()
-            experiment(subjectName, subjectNumber, 'gaussian', 'noCorrelation', blockTwoGaussianHStimuli, gaussianNoCorrelationStimuli, saveFolder, win, mouse)
+            experiment(subjectName, subjectNumber, 'gaussian', 'noCorrelation', blockTwoGaussianHStimuli, gaussianNoCorrelationStimuli, saveFolder, win, mouse, stimSize)
             event.clearEvents()
 
     else:
         if initialBlockType == 'noCorrelation':
-            experiment(subjectName, subjectNumber, 'unweighted', 'noCorrelation', blockOneUnweightedHStimuli, unweightedNoCorrelationStimuli, saveFolder, win, mouse)
+            experiment(subjectName, subjectNumber, 'unweighted', 'noCorrelation', blockOneUnweightedHStimuli, unweightedNoCorrelationStimuli, saveFolder, win, mouse, stimSize)
             event.clearEvents()
             breakScreen(win, mouse)
             event.clearEvents()
-            showTemplate('H', win, mouse)
+            showTemplate('H', win, mouse, stimSize)
             event.clearEvents()
-            experiment(subjectName, subjectNumber, 'unweighted', 'iCorrelation', blockTwoUnweightedHStimuli, unweightedIStimuli, saveFolder, win, mouse)
+            experiment(subjectName, subjectNumber, 'unweighted', 'iCorrelation', blockTwoUnweightedHStimuli, unweightedIStimuli, saveFolder, win, mouse, stimSize)
             event.clearEvents()
         else:
-            experiment(subjectName, subjectNumber, 'unweighted', 'iCorrelation', blockOneUnweightedHStimuli, unweightedIStimuli, saveFolder, win, mouse)
+            experiment(subjectName, subjectNumber, 'unweighted', 'iCorrelation', blockOneUnweightedHStimuli, unweightedIStimuli, saveFolder, win, mouse, stimSize)
             event.clearEvents()
             breakScreen(win, mouse)
             event.clearEvents()
-            showTemplate('H', win, mouse)
+            showTemplate('H', win, mouse, stimSize)
             event.clearEvents()
-            experiment(subjectName, subjectNumber, 'unweighted', 'noCorrelation', blockTwoUnweightedHStimuli, unweightedNoCorrelationStimuli, saveFolder, win, mouse)
+            experiment(subjectName, subjectNumber, 'unweighted', 'noCorrelation', blockTwoUnweightedHStimuli, unweightedNoCorrelationStimuli, saveFolder, win, mouse, stimSize)
             event.clearEvents()
         
 
