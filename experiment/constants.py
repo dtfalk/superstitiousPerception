@@ -2,8 +2,9 @@ import os
 from screeninfo import get_monitors
 
 backgroundColor = (1,1,1) # background color for screen
-altBackgroundColor = (int((253 * 2/ 255)) - 1 , int((253 * 2/ 255)) - 1, int((150 * 2/ 255)) - 1)
-textColor = (0, 0, 0) # text color
+#altBackgroundColor = (int((253 * 2/ 255)) - 1 , int((253 * 2/ 255)) - 1, int((150 * 2/ 255)) - 1)
+altBackgroundColor = (-1,-1,-1)
+textColor = (-1, -1, -1) # text color
 
 continueKey = 'space'
 quitKey = 'escape'
@@ -67,23 +68,21 @@ validLetters, validNumbers = getValidChars()
 # =======================================================================
 
 def explanationText(letter):
-    return f'In this task we will show you images for you to judge as a part of ongoing research into the limits of human perception. \
-Many people have described this task as feeling impossible, but do your best and you will do great. \
-Indeed, our previous research shows that you will perform much better than you think you are performing while you play. \
-Trust your intuitions and listen to that little voice in your head that is trying to tell you the answer! It is right more often than you think. \
-This task may feel like trying to read a street sign that is a little bit too far away, listening for your phone to buzz while you are in the shower, or wondering if you heard someone mention you in a conversation in the next room. \n\n\
-This task will ask you to identify which images have an "{letter}" hidden in them. The "{letter}" will not be obvious, but it is always centered and looks exactly like the template "{letter}" we will show you before you begin.\n\n\
-For each image, please press "Y" if you believe that you see an "{letter}" in the middle of the image and \
-press "N" if you do not believe that you see an "{letter}" hidden in the middle of the image.\n\n\
-Remember, humans are better at this sort of task than one might think!\n\n\
+    return f'In this task you will be shown a series of squares which contain a pattern of black and white dots. \
+In half of the trials, a black {letter} will be present in the pattern. You will be asked to determine whether or not the {letter} is in the image. \
+It will be very difficult to make this determination, but trust your intuition. \
+The {letter} will not be obvious, but it is always centered, and you will be shown an image of the {letter} for reference before you begin.\n\n\
+For each image, please press "Y" if you believe that you see the {letter} and \
+press "N" if you do not believe that you see the {letter}.\n\n\
+Remember, you will be better at this task than you think.\n\n\
 Thank you for participating and please let your experimenter know if you encounter any issues or if you would like to terminate your participation in the experiment.\n\n\
 Press the spacebar to continue.\n\n\n'
                 
 def realText(letter): 
-    return f'Remember to press "Y" if you believe that you see an "{letter}".\n\n\
-Remember to press "N" if you do not believe that you see an "{letter}".\n\n\
-You will now be shown the template "{letter}" that will be hidden in some of the stimuli.\n\n\
-You will have 10 seconds to view the template "{letter}".\n\n\
+    return f'Remember to press "Y" if you believe that you see an {letter}.\n\n\
+Remember to press "N" if you do not believe that you see an {letter}.\n\n\
+You will now be shown the template {letter} that will be in half of the stimuli.\n\n\
+You will have 10 seconds to view the template {letter}.\n\n\
 After those 10 seconds, the first image will automatically appear and you will begin making your selections.\n\n\
 Press the spacebar to continue when you are ready.'
 
