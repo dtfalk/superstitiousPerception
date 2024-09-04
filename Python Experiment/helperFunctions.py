@@ -277,10 +277,11 @@ def getStimuli():
     return gaussianHStimuli, gaussianIStimuli, gaussianNoCorrelationStimuli, unweightedHStimuli, unweightedIStimuli, unweightedNoCorrelationStimuli
 
 # split an uncorrelated bunch of stimuli into two lists
-def splitStimuli(stimuli):
-    blockOneStimuli = [stimulus for i, stimulus in enumerate(stimuli) if i % 2 == 0]
-    blockTwoStimuli = [stimulus for i, stimulus in enumerate(stimuli) if i % 2 == 1]
-
+def splitStimuli(stimuli, experimentType):
+    blockOneStimuli = [stimulus for stimulus in stimuli if stimulus in os.listdir(os.path.join(os.path.dirname(__file__), 'stimuli', f'{experimentType}BlockOneH'))]
+    blockTwoStimuli = [stimulus for stimulus in stimuli if stimulus in os.listdir(os.path.join(os.path.dirname(__file__), 'stimuli', f'{experimentType}BlockTwoH'))]
+    print(len(blockOneStimuli))
+    print(len(blockTwoStimuli))
     return blockOneStimuli, blockTwoStimuli
 
 

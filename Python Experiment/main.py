@@ -102,8 +102,8 @@ def main():
 
     # gets the top rated Hs, top rated Is and noisy images
     gaussianHStimuli, gaussianIStimuli, gaussianNoCorrelationStimuli, unweightedHStimuli, unweightedIStimuli, unweightedNoCorrelationStimuli = getStimuli()
-    blockOneGaussianHStimuli, blockTwoGaussianHStimuli = splitStimuli(gaussianHStimuli)
-    blockOneUnweightedHStimuli, blockTwoUnweightedHStimuli = splitStimuli(unweightedHStimuli)
+    blockOneGaussianHStimuli, blockTwoGaussianHStimuli = splitStimuli(gaussianHStimuli, 'gaussian')
+    blockOneUnweightedHStimuli, blockTwoUnweightedHStimuli = splitStimuli(unweightedHStimuli, 'unweighted')
 
     # selecting different experimental and block schemes
     weightingScheme, initialBlockType = selectExperimentType()
