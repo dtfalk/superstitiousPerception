@@ -761,6 +761,74 @@ $$
 
 which translates to "the i,j'th pixel from the b'th stimulus minus the weighted mean of the b'th stimulus's k'th weight matrix" (or something to that effect). Essentially this just does nice centered stuff around the mean work for us.
 
+Let's examine the following line of code in terms of the part of the weighted pearson function it calculates...
+
+```
+numerator = sum(weightMatrices[None, :, :, :] * stimuliMeanDifferences * weightedMeanDifferences, axis=(2, 3))
+```
+
+and remember that the numerator of the weighted pearson score is just the weighted covariance of the stimulus S and the template T.
+
+$$
+    WeightedCovariance(S, T) = \frac{\sum_{i = 0}^{imageHeight - 1}{\sum_{j = 0}^{imageWidth - 1}{WeightMatrix_{i,j} * (S_{i,j} - \overline{WS}) * (T_{i,j} - \overline{WT})}}}{\sum_{i = 0}^{imageHeight - 1}{\sum_{j = 0}^{imageWidth - 1}{WeightMatrix_{i,j}}}}
+$$
+
+If you remember from our precalculating section, **weightedMeanDifferences** accounts for the $(T_{i,j} - \overline{WT})$ part of this equation, the **stimuliMeanDifferences** we calculated earlier in this function accounts for the $(S_{i,j} - \overline{WS})$ part of this equation, and the initial multiplication by **weightMatrices** accounts for the $WeightMatrix_{i,j}$ part of the equation. Then we sum over the second and third axes which accounts for the $\sum_{i = 0}^{imageHeight - 1}{\sum_{j = 0}^{imageWidth - 1}{}}$ part of the equation. You may notice that we do not calculate the denominator of this equation. That is because the denominator here will cancel out with the denominators in the denominator. Feel free to check this yourself using the equations above. You will have a denominator squared in the denominator which you can pull out of the square root we use, and it will perfectly cancel with the denominator from the numerator. We then calculate the Covariance of the stimulus with itself and the covariance of the template with itself and then multiply to get the denominator. Finally, we return the numerators divided by the denominators. This returns a matrix with shape (1000, T * R * W) containing the pearson scores of every stimulus + template/relevant point scheme/weighting scheme combination in this batch. This matrix gets returned to **processAndStoreResults**.
+
+```
+def processAndStoreResults(arrayPath, weightMatrices, weightedMeanDifferences, summedWeightMatrices, results):
+
+    #startTimeBatch = time.time()
+    # load the stimuli, stimuli numbers, start stimuli number and end stimuli number for the current batch
+    stimuli, start, end = loadStimuli(arrayPath)
+    #print('Running stimuli %d to %d'%(start, end))
+
+    # get a cupy array with the results for the current batch
+    batchResults = pearsons(stimuli, weightMatrices, weightedMeanDifferences, summedWeightMatrices)
+    
+    # insert batchResults in results
+    results[start: end] = batchResults
+    #print('batch runtime for stimuli %d to %d: %f\n\n\n'%(start, end - 1, time.time() - startTimeBatch))
+
+    return
+```
+We then insert those results into their proper place within the **results** array using ``results[start: end] = batchResults``. This function then terminates and we are back within the template specific function. 
+
+```
+def main():
+
+    imageDimensions = (51, 51)
+
+    # start time so we can track how long it takes the code to run in the terminal
+    startTime = time.time()
+
+    # get the saving and loading paths
+    templatesPath, stimuliPath, savePath = getPaths()
+
+    # load the templates and get the template names
+    templates, templateNames = loadTemplates(templatesPath, imageDimensions)
+
+    # get the weight matrices and the weighted means of the templates (and the 3-tuple to index crosswalk)
+    weightMatrices, weightedMeanDifferences, summedWeightMatrices, indicesDictionary = getWeightMatrices(templates, templateNames, imageDimensions)
+
+    # preload the results array
+    results = zeros(shape = (numImages, len(templates) * len(weightingSchemes) * len(relevantPointSchemes)), dtype = float32)
+
+
+    for arrayPath in os.listdir(stimuliPath):
+        processAndStoreResults(os.path.join(stimuliPath, arrayPath), weightMatrices, weightedMeanDifferences, summedWeightMatrices, results)
+
+    # save the fully populated cupy results array as a numpy array
+    save(os.path.join(savePath, 'hiAnalysis.npy'), results)
+
+    # write the 3-tuple to indices dictionary to a csv file
+    writeIndicesToCsv(savePath, indicesDictionary)
+    
+    # print runtime for the entire process
+    print("        Runtime for H/I/Features: %.4f seconds"%(time.time() - startTime))
+```
+Specifically we are located in the for loop. Once the for loop terminates, it means that we have calculated the pearson score for all of the stimuli and for all of the templates/relevant point schemes/weighting schemes. Hurray! All of the hard stuff is done. Finally, we use `save(os.path.join(savePath, 'hiAnalysis.npy'), results)` to save the (1 million, T * R * W) array with all of our results, and we save the object that lets us convert between indices and tempalte/relevant point schemes/weighting scheme combinations. Hurray! Now we are done!!!!!
+
 
 
 
