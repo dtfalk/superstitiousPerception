@@ -14,10 +14,10 @@ from postProcessing.crossCorrelations.helpers.imports import *
 def main():
     print('\n\n        Cross-correlations starting now...\n')
     startTime = time.time()
-    fullscreen()
-    halfscreen()
+    # fullscreen()
+    # halfscreen()
     hi()
-    s()
+    # s()
     print('\n        Runtime for calculating cross-correlations: %.4f seconds'%(time.time() - startTime))
 
 if __name__ == '__main__':

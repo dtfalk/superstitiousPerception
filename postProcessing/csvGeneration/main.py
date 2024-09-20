@@ -14,10 +14,10 @@ from postProcessing.csvGeneration.helpers.imports import *
 def main():
     print('\n        Pearson CSV data extraction starting now...\n')
     startTime = time.time()
-    fullscreen()
-    halfscreen()
+    # fullscreen()
+    # halfscreen()
     hi()
-    s()
+    # s()
     print('\n        Runtime for extracting Pearson CSV data: %.4f seconds'%(time.time() - startTime))
 
 if __name__ == '__main__':

@@ -13,10 +13,10 @@ from postProcessing.principalComponentAnalysis.helpers.imports import *
 def main():
     print('\n\n        Principal Component Analysis starting now...\n')
     startTime = time.time()
-    fullscreen()
-    halfscreen()
+    # fullscreen()
+    # halfscreen()
     hi()
-    s()
+    # s()
     print('\n        Runtime for Principal Component Analysis: %.4f seconds'%(time.time() - startTime))
 
 

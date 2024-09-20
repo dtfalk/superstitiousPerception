@@ -56,6 +56,9 @@ def getDistance(relevantPoints, rowIndices, colIndices):
     # Take the square root to get the actual distances
     distances = sqrt(minSquaredDistances)
 
+    # TODO: Modularize this assert
+    assert(distances.shape == (51, 51))
+
     return distances
 
 
@@ -88,8 +91,7 @@ def getWeightedMean(array, weightMatrix):
     
     if totalWeight > 0:
         return weightedSum / totalWeight
-    
-    
+
     return 0
 
 
@@ -127,9 +129,9 @@ def getWeightMatrix(template, weightingScheme, relevantPointScheme, imageDimensi
         # unweighted weighting scheme (everything has weight == 1)
         weightsMatrix = ones(template.shape, dtype = float32)
     
-    
-    # return the weights matrix
-    return weightsMatrix
+    # normalize the matrix and return
+    matrixSum = sum(weightsMatrix)
+    return weightsMatrix / matrixSum
 
 
 # generate all of the weights matrices as a dictionary

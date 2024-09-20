@@ -20,11 +20,11 @@ def main():
     startTime = time.time()
 
     # run code for creating templates
-    fullCrosses()
-    halfCrosses()
+    #fullCrosses()
+    #halfCrosses()
     hi()
     features()
-    sImage()
+    #sImage()
 
     # run code for creating stimuli
     stimuli()

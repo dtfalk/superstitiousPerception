@@ -14,10 +14,10 @@ from imageProcessing.helpers.imports import *
 def main():
     print('    Image processing starting now...\n')
     startTime = time.time()
-    fullscreen()
-    halfscreen()
+    # fullscreen()
+    # halfscreen()
     hi()
-    S()
+    # S()
     print('\n    Runtime for processing all images: %.4f seconds\n\n\n'%(time.time() - startTime))
 
 if __name__ == '__main__':

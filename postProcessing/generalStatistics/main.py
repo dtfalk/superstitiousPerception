@@ -14,10 +14,10 @@ from postProcessing.generalStatistics.helpers.imports import *
 def main():
     print('\n\n        General statistics starting now...\n')
     startTime = time.time()
-    fullscreen()
-    halfscreen()
+    # fullscreen()
+    # halfscreen()
     hi()
-    s()
+    # s()
     print('\n        Runtime for calculating general statistics: %.4f seconds'%(time.time() - startTime))
 
 if __name__ == '__main__':

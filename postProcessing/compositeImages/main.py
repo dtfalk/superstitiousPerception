@@ -14,10 +14,10 @@ from postProcessing.compositeImages.helpers.imports import *
 def main():
     print('\n\n        Composite images starting now...\n')
     startTime = time.time()
-    fullscreen()
-    halfscreen()
+    # fullscreen()
+    # halfscreen()
     hi()
-    s()
+    # s()
     print('\n        Runtime for calculating composite images: %.4f seconds'%(time.time() - startTime))
 
 if __name__ == '__main__':
