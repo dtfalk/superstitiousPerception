@@ -3,7 +3,6 @@ import csv
 import shutil
 import numpy as np
 from time import time
-import pandas as pd
 
 
 # Returns dictionaries with the stimulus number and its pearson result for a scheme
