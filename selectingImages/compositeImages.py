@@ -17,10 +17,10 @@ def main():
     os.makedirs(savePath, exist_ok = True)
 
     # lists of our stimuli
-    unweightedBlockOneHs = os.listdir(os.path.join(imagesLocation, 'unweightedBlockOneH'))
-    unweightedBlockTwoHs = os.listdir(os.path.join(imagesLocation, 'unweightedBlockTwoH'))
-    gaussianBlockOneHs = os.listdir(os.path.join(imagesLocation, 'gaussianBlockOneH'))
-    gaussianBlockTwoHs = os.listdir(os.path.join(imagesLocation, 'gaussianBlockTwoH'))
+    unweightedBlockOneHs = os.listdir(os.path.join(imagesLocation, 'unweightedUncorrelatedH'))
+    unweightedBlockTwoHs = os.listdir(os.path.join(imagesLocation, 'unweightedICorrelatedH'))
+    gaussianBlockOneHs = os.listdir(os.path.join(imagesLocation, 'gaussianUncorrelatedH'))
+    gaussianBlockTwoHs = os.listdir(os.path.join(imagesLocation, 'gaussianICorrelatedH'))
     unweightedIs = os.listdir(os.path.join(imagesLocation, 'unweightedI'))
     gaussianIs = os.listdir(os.path.join(imagesLocation, 'gaussianI'))
     unweightedUncorrelateds = os.listdir(os.path.join(imagesLocation, 'unweightedUncorrelated'))
@@ -31,9 +31,9 @@ def main():
     unweighted_Hs = unweightedBlockOneHs + unweightedBlockTwoHs
     for imageName in unweighted_Hs:
         if imageName in unweightedBlockOneHs:
-            imagePath = os.path.join(imagesLocation, 'unweightedBlockOneH', imageName)
+            imagePath = os.path.join(imagesLocation, 'unweightedUncorrelatedH', imageName)
         else:
-            imagePath = os.path.join(imagesLocation, 'unweightedBlockTwoH', imageName)
+            imagePath = os.path.join(imagesLocation, 'unweightedICorrelatedH', imageName)
 
         curImage = np.array(Image.open(imagePath), dtype = np.float64)
         assert(curImage.shape == (51, 51))
@@ -44,31 +44,31 @@ def main():
     # composite block one unweighted Hs
     unweightedBlockOneHArray = np.zeros(shape = (51, 51))
     for imageName in unweightedBlockOneHs:
-        imagePath = os.path.join(imagesLocation, 'unweightedBlockOneH', imageName)
+        imagePath = os.path.join(imagesLocation, 'unweightedUncorrelatedH', imageName)
         curImage = np.array(Image.open(imagePath), dtype = np.float64)
         assert(curImage.shape == (51, 51))
         unweightedBlockOneHArray += curImage
     unweightedBlockOneHImage = Image.fromarray((unweightedBlockOneHArray // 100).astype(dtype = np.uint8), mode = 'L')
-    unweightedBlockOneHImage.save(os.path.join(savePath, 'unweightedBlockOneH.png'))
+    unweightedBlockOneHImage.save(os.path.join(savePath, 'unweightedUncorrelatedH.png'))
 
     # composite block two unweighted Hs
     unweightedBlockTwoHArray = np.zeros(shape = (51, 51))
     for imageName in unweightedBlockTwoHs:
-        imagePath = os.path.join(imagesLocation, 'unweightedBlockTwoH', imageName)
+        imagePath = os.path.join(imagesLocation, 'unweightedICorrelatedH', imageName)
         curImage = np.array(Image.open(imagePath), dtype = np.float64)
         assert(curImage.shape == (51, 51))
         unweightedBlockTwoHArray += curImage
     unweightedBlockTwoHImage = Image.fromarray((unweightedBlockTwoHArray // 100).astype(dtype = np.uint8), mode = 'L')
-    unweightedBlockTwoHImage.save(os.path.join(savePath, 'unweightedBlockTwoH.png'))
+    unweightedBlockTwoHImage.save(os.path.join(savePath, 'unweightedICorrelatedH.png'))
 
     # composite Gaussian Hs
     gaussianHArray = np.zeros(shape = (51, 51))
     gaussian_Hs = gaussianBlockOneHs + gaussianBlockTwoHs
     for imageName in gaussian_Hs:
         if 'BlockOne' in imageName:
-            imagePath = os.path.join(imagesLocation, 'gaussianBlockOneH', imageName)
+            imagePath = os.path.join(imagesLocation, 'gaussianUncorrelatedH', imageName)
         else:
-            imagePath = os.path.join(imagesLocation, 'gaussianBlockTwoH', imageName)
+            imagePath = os.path.join(imagesLocation, 'gaussianICorrelatedH', imageName)
 
         curImage = np.array(Image.open(imagePath), dtype = np.float64)
         assert(curImage.shape == (51, 51))
@@ -79,22 +79,22 @@ def main():
     # composite Block One Gaussian Hs
     gaussianBlockOneHArray = np.zeros(shape = (51, 51))
     for imageName in gaussianBlockOneHs:
-        imagePath = os.path.join(imagesLocation, 'gaussianBlockOneH', imageName)
+        imagePath = os.path.join(imagesLocation, 'gaussianUncorrelatedH', imageName)
         curImage = np.array(Image.open(imagePath), dtype = np.float64)
         assert(curImage.shape == (51, 51))
         gaussianBlockOneHArray += curImage
     gaussianBlockOneHImage = Image.fromarray((gaussianBlockOneHArray // 100).astype(dtype = np.uint8), mode = 'L')
-    gaussianBlockOneHImage.save(os.path.join(savePath, 'gaussianBlockOneH.png'))
+    gaussianBlockOneHImage.save(os.path.join(savePath, 'gaussianUncorrelatedH.png'))
 
     # composite Block Two Gaussian Hs
     gaussianBlockTwoHArray = np.zeros(shape = (51, 51))
     for imageName in gaussianBlockTwoHs:
-        imagePath = os.path.join(imagesLocation, 'gaussianBlockTwoH', imageName)
+        imagePath = os.path.join(imagesLocation, 'gaussianICorrelatedH', imageName)
         curImage = np.array(Image.open(imagePath), dtype = np.float64)
         assert(curImage.shape == (51, 51))
         gaussianBlockTwoHArray += curImage
     gaussianBlockTwoHImage = Image.fromarray((gaussianBlockTwoHArray // 100).astype(dtype = np.uint8), mode = 'L')
-    gaussianBlockTwoHImage.save(os.path.join(savePath, 'gaussianBlockTwoH.png'))
+    gaussianBlockTwoHImage.save(os.path.join(savePath, 'gaussianICorrelatedH.png'))
 
     # composite unweighted Is
     unweightedIArray = np.zeros(shape = (51, 51))

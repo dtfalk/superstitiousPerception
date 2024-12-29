@@ -321,22 +321,22 @@ def main():
     # Splitting the unweighted H stimuli into blocks and printing stats
     block_one_unweighted_H, block_two_unweighted_H = snake_split_sorted_stimuli(unweighted_Hs)
 
-    print("Unweighted Hs Block One Statistics")
+    print("Unweighted Uncorrelated Hs Statistics")
     print("===========================")
     print_statistics(block_one_unweighted_H, H_Unweighted_Scores, I_Unweighted_Scores)
 
-    print("Unweighted Hs Block Two Statistics")
+    print("Unweighted I-Correlated Hs Statistics")
     print("===========================")
     print_statistics(block_two_unweighted_H, H_Unweighted_Scores, I_Unweighted_Scores)
 
     # Splitting the gaussian H stimuli into blocks and printing stats
     block_one_gaussian_H, block_two_gaussian_H = snake_split_sorted_stimuli(gaussian_Hs)
 
-    print("Gaussian Hs Block One Statistics")
+    print("Gaussian Uncorrelated Hs Statistics")
     print("===========================")
     print_statistics(block_one_gaussian_H, H_Gaussian_Scores, I_Gaussian_Scores)
 
-    print("Gaussian Hs Block Two Statistics")
+    print("Gaussian I-Correlated Hs Statistics")
     print("===========================")
     print_statistics(block_two_gaussian_H, H_Gaussian_Scores, I_Gaussian_Scores)
 
@@ -367,10 +367,10 @@ def main():
     # =========================================================================================
     
     copySaveTime = time()
-    save_batch(block_one_unweighted_H, 'unweightedBlockOneH')
-    save_batch(block_two_unweighted_H, 'unweightedBlockTwoH')
-    save_batch(block_two_gaussian_H, 'gaussianBlockOneH')
-    save_batch(block_two_gaussian_H, 'gaussianBlockTwoH')
+    save_batch(block_one_unweighted_H, 'unweightedUncorrelatedH')
+    save_batch(block_two_unweighted_H, 'unweightedICorrelatedH')
+    save_batch(block_two_gaussian_H, 'gaussianUncorrelatedH')
+    save_batch(block_two_gaussian_H, 'gaussianICorrelatedH')
     save_batch(unweighted_Is, 'unweightedI')
     save_batch(gaussian_Is, 'gaussianI')
     save_batch(uncorrelated_unweighted, 'unweightedUncorrelated')

@@ -39,24 +39,42 @@ def saveBatch(images, start, imagesPath):
         for future in concurrent.futures.as_completed(futures):
             future.result()
 
-# Function to create and save a batch of images
-def createAndSaveBatch(start, imagesPath, arraysPath):
+def createBalancedImage():
+    num_pixels = imageHeight * imageWidth
+    half_pixels = num_pixels // 2
+    # Adjust for odd total number of pixels
+    if num_pixels % 2 != 0:
+        half_pixels += 1
 
-    # current batch starting number
+    # Create a balanced array of 0s and 255s
+    image_array = np.array([0] * half_pixels + [255]  *(num_pixels - half_pixels))
+    np.random.shuffle(image_array)
+    return image_array.reshape((imageHeight, imageWidth)).astype(np.uint8)
+
+def createImages(batch_size):
+    images = []
+    for _ in range(batch_size):
+        balanced_image_array = createBalancedImage()
+        image = Image.fromarray(balanced_image_array, mode='L')
+        images.append(image)
+    return images
+
+def createAndSaveBatch(start, imagesPath, arraysPath):
+    # Current batch starting number
     batchNumber = start
-    
+
     # Create batch directories
     imageBatchPath = os.path.join(imagesPath, str(batchNumber))
-    os.makedirs(imageBatchPath, exist_ok = True)
+    os.makedirs(imageBatchPath, exist_ok=True)
 
-    # create our large array and save it
-    array = np.random.randint(2, size = (batchSize, imageHeight, imageWidth), dtype = np.uint8)
-    np.save(os.path.join(arraysPath, '%d.npy'%start), array)
+    # Create images
+    images = createImages(batchSize)
 
-    # create the images from each batch
-    images = createImages(array)
-    
-    # save the images
+    # Save images and arrays
+    array = np.stack([np.array(img) for img in images])  # Stack images to create 3D array
+    np.save(os.path.join(arraysPath, f'{start}.npy'), array)  # Save array
+
+    # Save individual images
     saveBatch(images, start, imageBatchPath)
 
 def main():

@@ -1,162 +1,164 @@
 # tests have been run and there is no overlapping stimuli
-from psychopy import visual, core, monitors
+import pygame as pg
+from random import shuffle
 from helperFunctions import *
 
+
 # The experiment itself
-def experiment(subjectName, subjectNumber, weightingScheme, blockType, targetStimuli, distractorStimuli, savePath, win, mouse, stimSize):
-    win.color = altBackgroundColor
+def experiment(subjectName, subjectNumber, block, targetStimuli, distractorStimuli, saveFolder, win):
+
 
     # various variables for handling the game
+    pg.event.clear()
     reset = False
-    startTime = core.Clock()
+    startTime = pg.time.get_ticks()
     
     # select an initial image
-    image, stimulusNumber, imageType = selectStimulus(targetStimuli, distractorStimuli, weightingScheme, win, stimSize)
+    image, stimulusNumber, stimulusType = selectStimulus(targetStimuli, distractorStimuli)
 
     # Loop for handling events
     while True:
-        mouse.setVisible(False)
+        
+        # handles key presses
+        for event in pg.event.get():
+            if event.type == pg.KEYDOWN:
 
-        # handling key presses
-        for key in event.getKeys():
+                # quit the experiment key
+                if event.key == pg.K_ESCAPE:
+                    pg.quit()
+                    sys.exit()
 
-            # quit the experiment key
-            if key == 'escape':
-                win.close()
-                core.quit()
+                # handles response keys (y for "yes, the stimulus is here". "n" otherwise)
+                elif event.key == pg.K_y or event.key == pg.K_n:
 
-            # handle response keys (y for "yes, the stimulus is here". "n" otherwise)
-            elif key == 'y' or key == 'n':
+                    # indicates we will reset the experiment once a response is selected
+                    reset = True
 
-                # indicates we will reset the experiment once a response is selected
-                reset = True
+                    # user's response to a stimulus
+                    if event.key == pg.K_y:
+                        response = 'target'
+                    else:
+                        response = 'distractor'
 
-                # user's response to a stimulus
-                if key == 'y':
-                    response = 'target'
-                else:
-                    response = 'distractor'
-
-                # saves user's response
-                responseTime = startTime.getTime()
-                recordResponse(subjectName, subjectNumber, weightingScheme, blockType, stimulusNumber, imageType, response, str(responseTime), savePath)
-                event.clearEvents()
-                win.color = altBackgroundColor
-                win.flip()
-                time.sleep(2)
+                    # saves user's response
+                    responseTime = pg.time.get_ticks() - startTime
+                    recordResponse(subjectName, subjectNumber, block, stimulusNumber, stimulusType, response, responseTime, saveFolder)
+                    
+                    # 2 second rest between each stimulus
+                    win.fill(backgroundColor)
+                    pg.display.flip()
+                    pg.event.clear()
             
         # while the trial continues on just keep the image on the screen until they give a response
         if not reset:
-            mouse.setVisible(False)
-            image.draw()
-            mouse.setVisible(False)
-            win.flip()
-            mouse.setVisible(False)
-            
+            win.fill(backgroundColor)
+            win.blit(image, screenCenter)
+            pg.display.flip()
+    
         # end of a trial
         else:
 
-            # clear the events 
+            # update the restart variables 
             reset = False
-            win.flip()
-            event.clearEvents()
             
             # end experiment if we have shown all of the images
-            if (len(targetStimuli) == 0 and len(distractorStimuli) == 0):
+            #if (len(targetStimuli) == 0 and len(distractorStimuli) == 0):
+            if (len(targetStimuli) == 95 or len(distractorStimuli) == 95):
                 return
             
             # otherwise select a new image
-            image, stimulusNumber, imageType = selectStimulus(targetStimuli, distractorStimuli, weightingScheme, win, stimSize)
-            mouse.setVisible(False)
-
+            image, stimulusNumber, stimulusType = selectStimulus(targetStimuli, distractorStimuli)
+            
             # reset the trial timer
-            startTime.reset()
+            startTime = pg.time.get_ticks()
+
+            # clear events so spamming keys doesn't mess things up
+            pg.event.clear()
 
 
 # handles the overall experiment flow
 def main():
 
-    monitor = monitors.Monitor('main')
+    # Initializing Pygame
+    # =================================================================
 
-    # Specify the physical size of the monitor in centimeters (width, height)
-    monitor.setSizePix([winWidth, winHeight]) 
-    monitor.setWidth(30.15)  
-    monitor.setDistance(60.96)  
+    # == Initiate pygame and collect user information ==
+    pg.init()
+    pg.mixer.init()
 
-    # Get the size in pixels for 2 degrees of visual angle
-    stim_size_degrees = 2
-    stimSize = round(deg2pix(stim_size_degrees, monitor))
+    # == Set window ==
+    win = pg.display.set_mode((winWidth, winHeight), pg.FULLSCREEN)
 
-    # Calculate the size of the stimulus in pixels
-    #stimSize = monitor.getSizePix()[0] * (stim_size_cm / monitor.getWidth())
+    # make mouse invisible
+    pg.mouse.set_visible(False)
 
-    # initialize window and mouse object (set mouse to invisible)
-    win = visual.Window(size = (winWidth, winHeight), pos = (winX, winY), fullscr = True, monitor = monitor, color = backgroundColor)
-    mouse = event.Mouse(win = win)
-    mouse.setVisible(False)
+    # =================================================================
+
+
     
+    # Collects user info and preps the stimuli and the rest of the experiment
+    # ============================================================================================
+
     # get user info and where to store their results
-    subjectName, subjectNumber = getSubjectInfo(win, mouse)
+    subjectName= getSubjectInfo('name', win)
+    subjectNumber = getSubjectInfo('subject number', win)
     saveFolder = os.path.join(os.path.dirname(__file__), 'results', subjectNumber)
     os.makedirs(saveFolder, exist_ok = True)
 
     # gets the top rated Hs, top rated Is and noisy images
-    gaussianHStimuli, gaussianIStimuli, gaussianNoCorrelationStimuli, unweightedHStimuli, unweightedIStimuli, unweightedNoCorrelationStimuli = getStimuli()
-    blockOneGaussianHStimuli, blockTwoGaussianHStimuli = splitStimuli(gaussianHStimuli, 'gaussian')
-    blockOneUnweightedHStimuli, blockTwoUnweightedHStimuli = splitStimuli(unweightedHStimuli, 'unweighted')
+    gaussianHStimuli_uncorrelated,  gaussianHStimuli_icorrelated, gaussianIStimuli, gaussianNoCorrelationStimuli, \
+    unweightedHStimuli_uncorrelated, unweightedHStimuli_icorrelated, unweightedIStimuli, unweightedNoCorrelationStimuli = getStimuli()
 
-    # selecting different experimental and block schemes
-    weightingScheme, initialBlockType = selectExperimentType()
+    # map the weighting scheme/correlation scheme pair to the actual lists of images
+    # (weighting scheme, correlation scheme) ---> (target images, distractor images)
+    stimuliDictionary = {
+        'unweighted_icorrelated': (unweightedHStimuli_icorrelated, unweightedIStimuli),
+        'unweighted_uncorrelated': (unweightedHStimuli_uncorrelated, unweightedNoCorrelationStimuli),
+        'gaussian_icorrelated': (gaussianHStimuli_icorrelated, gaussianIStimuli),
+        'gaussian_uncorrelated': (gaussianHStimuli_uncorrelated, gaussianNoCorrelationStimuli)
+    }
+    
+    # shuffle the blocks randomly, preserving gaussian with gaussian and unweighted with unweighted
+    shuffledBlocks = [['unweighted_icorrelated', 'unweighted_uncorrelated'], ['gaussian_icorrelated', 'gaussian_uncorrelated']]   
+    for block in shuffledBlocks:
+        shuffle(block)
+    shuffle(shuffledBlocks)
 
-    experimentExplanation(win, 'H', mouse)
-    event.clearEvents()
-    realInstructions(win, 'H', mouse, stimSize)
-    event.clearEvents()
-    if weightingScheme == 'gaussian':
-        if initialBlockType == 'noCorrelation':
-            experiment(subjectName, subjectNumber, 'gaussian', 'noCorrelation', blockOneGaussianHStimuli, gaussianNoCorrelationStimuli, saveFolder, win, mouse, stimSize)
-            event.clearEvents()
-            breakScreen(win, mouse)
-            event.clearEvents()
-            showTemplate('H', win, mouse, stimSize)
-            event.clearEvents()
-            experiment(subjectName, subjectNumber, 'gaussian', 'iCorrelation', blockTwoGaussianHStimuli, gaussianIStimuli, saveFolder, win, mouse, stimSize)
-            event.clearEvents()
-        else:
-            experiment(subjectName, subjectNumber, 'gaussian', 'iCorrelation', blockOneGaussianHStimuli, gaussianIStimuli, saveFolder, win, mouse, stimSize)
-            event.clearEvents()
-            breakScreen(win, mouse)
-            event.clearEvents()
-            showTemplate('H', win, mouse, stimSize)
-            event.clearEvents()
-            experiment(subjectName, subjectNumber, 'gaussian', 'noCorrelation', blockTwoGaussianHStimuli, gaussianNoCorrelationStimuli, saveFolder, win, mouse, stimSize)
-            event.clearEvents()
+    blocks = shuffledBlocks[0] + shuffledBlocks[1]
+    print(blocks)
 
-    else:
-        if initialBlockType == 'noCorrelation':
-            experiment(subjectName, subjectNumber, 'unweighted', 'noCorrelation', blockOneUnweightedHStimuli, unweightedNoCorrelationStimuli, saveFolder, win, mouse, stimSize)
-            event.clearEvents()
-            breakScreen(win, mouse)
-            event.clearEvents()
-            showTemplate('H', win, mouse, stimSize)
-            event.clearEvents()
-            experiment(subjectName, subjectNumber, 'unweighted', 'iCorrelation', blockTwoUnweightedHStimuli, unweightedIStimuli, saveFolder, win, mouse, stimSize)
-            event.clearEvents()
-        else:
-            experiment(subjectName, subjectNumber, 'unweighted', 'iCorrelation', blockOneUnweightedHStimuli, unweightedIStimuli, saveFolder, win, mouse, stimSize)
-            event.clearEvents()
-            breakScreen(win, mouse)
-            event.clearEvents()
-            showTemplate('H', win, mouse, stimSize)
-            event.clearEvents()
-            experiment(subjectName, subjectNumber, 'unweighted', 'noCorrelation', blockTwoUnweightedHStimuli, unweightedNoCorrelationStimuli, saveFolder, win, mouse, stimSize)
-            event.clearEvents()
+    # ============================================================================================
+
+    
+    # showing the user the experiment
+    experimentExplanation(win)
+    pg.event.clear()
+    realInstructions(win)
+    pg.event.clear()
+
+    # give users all four blocks
+    for i, block in enumerate(blocks):
+        print(f'block {i}: {block}')
+
+        # extract weighting scheme (gaussian vs unweighted) and correlation scheme (uncorrelated vs i-correlated)
+        targetImages, distractorImages = stimuliDictionary[block]
+
+        # show template image and display stimuli
+        showTemplate(win)
+        experiment(subjectName = subjectName, subjectNumber = subjectNumber, 
+                   block = block, 
+                   targetStimuli = targetImages, distractorStimuli = distractorImages, 
+                   saveFolder = saveFolder, win = win)
         
+        # give break screen betweeen blocks
+        if i < len(blocks) - 1:
+            breakScreen(win)
 
-    # exit screen thanking participant
-    exitScreen(win, mouse)
+    # exit screen thanking participants
+    exitScreen(win)
 
-    writeSummaryData(subjectName, subjectNumber, weightingScheme, initialBlockType, saveFolder)
+    # calculate overall data and write to a user-specific data file
+    writeSummaryData(subjectName, subjectNumber, blocks, saveFolder)
 
 if __name__ == '__main__':
     main()

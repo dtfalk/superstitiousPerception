@@ -1,10 +1,9 @@
 import os
+import sys
 import csv
-import time
 import random
-import math
 from scipy.stats import norm
-from psychopy import visual, core, event
+import pygame as pg
 from constants import *
 
 imageWidth, imageHeight = 51, 51
@@ -38,93 +37,222 @@ scaledImageSize = (imageWidth * scaleFactor, imageHeight * scaleFactor)
 # =======================================================================
 # =======================================================================
 
-# gets the subject name, subject number, metric type and distance type
-def getSubjectInfo(win, mouse):
-    subjectName = getSubjectName(win, mouse)
-    subjectNumber = getSubjectNum(win, mouse)
-    
-    return subjectName, subjectNumber
+# stops game execution until a particular key is pressed
+def waitKey(key):
 
-# gets the subject's name
-def getSubjectName(win, mouse):
-    mouse.setVisible(False)
-    namePrompt = 'Subject Name: '
-    subjectName = ''
-    
+    # just keep waiting until the relevant key is pressed
     while True:
-        mouse.setVisible(False)
-        keys = event.getKeys()
-        for key in keys:
-            if key == quitKey:
-                win.close()
-                core.quit()
-                return
-            elif key == 'return':
-                return subjectName
-            elif key == 'backspace':
-                if subjectName != '':
-                    subjectName = subjectName[:-1]
-            elif key == 'space':
-                subjectName = subjectName + ' '
-            elif key in validLetters:
-                subjectName = subjectName + key
-        mouse.setVisible(False)
-        prompt = visual.TextStim(win = win, text = namePrompt + subjectName, height = 0.2, color = textColor)
-        mouse.setVisible(False)
-        prompt.draw()
-        mouse.setVisible(False)
-        win.flip()
-        mouse.setVisible(False)
+        for event in pg.event.get():
+            if event.type == pg.KEYDOWN:
+                if event.key == key:
+                    return
+                elif event.key == pg.K_ESCAPE:
+                    pg.quit()
+                    sys.exit()
 
-# gets the subject number
-def getSubjectNum(win, mouse):
-    mouse.setVisible(False)
-    numPrompt = 'Subject Number: '
-    subjectNum = ''
+# function to draw/fit a multiline message to the screen
+def multiLineMessage(text, textsize, win):
+
+    # set font and text color
+    font = pg.font.SysFont("arial", textsize)
+    color = BLACK
+
+    # Initialize variables for layout calculations
+    xPos_start = 0.05 * winWidth
+    yPos_start = 0.05 * winHeight
+    xMax = 0.95 * winWidth
+    yMax = 0.95 * winHeight
+
+    # Function to calculate if the text fits within the designated area
+    def fitsWithinArea(text, font):
+
+        # starting x and y coordinate for the text
+        xPos = xPos_start
+        yPos = yPos_start
+
+        # Get line height based on font size
+        lineHeight = font.get_linesize() 
+        lines = text.split('\n')
+        for line in lines:
+
+            # Handle empty lines for consecutive newlines
+            if line == '':
+                yPos += lineHeight
+            
+            # Handle non-empty lines
+            else:
+                words = line.split()
+                for word in words:
+                    word_surface = font.render(word, True, color)
+                    wordWidth, _ = word_surface.get_size()
+
+                    # Check if new word exceeds the line width
+                    if xPos + wordWidth > xMax: 
+
+                        # Reset to start of the line
+                        xPos = xPos_start
+
+                        # Move down by the height of the previous line
+                        yPos += lineHeight
+
+                    # Check if adding another line exceeds the page height
+                    if yPos + lineHeight > yMax:
+                        return False
+                    
+                    # Blit here for size calculation
+                    win.blit(word_surface, (xPos, yPos))
+
+                    # Move xPos for the next word, add space
+                    xPos += wordWidth + font.size(" ")[0] 
+                
+                # reset x position and increment y position by height of text
+                xPos = xPos_start
+                yPos += lineHeight
+        return True
+
+    # Adjust font size until the text fits within the area
+    while not fitsWithinArea(text, font) and textsize > 1:
+        textsize -= 1
+        font = pg.font.SysFont("arial", textsize)
+
+    # Draw the background and boundaries only once
+    win.fill(backgroundColor)
+
+    # Now draw the text with the properly adjusted font size
+    xPos = xPos_start
+    yPos = yPos_start
+    lineHeight = font.get_linesize()
+    lines = text.split('\n')
+
+    # iterate over each line
+    for line in lines:
+
+        # Handle empty lines for consecutive newlines
+        if line == '':
+            yPos += lineHeight
+
+        # Handle non-empty lines
+        else:
+
+            # split the line into its constituent words
+            words = line.split()
+
+            # iterate over each words
+            for word in words:
+
+                # render the word and get the size of the word
+                word_surface = font.render(word, True, color)
+                wordWidth, _ = word_surface.get_size()
+
+                # Check if word exceeds line width
+                if xPos + wordWidth > xMax:
+
+                    # reset x position and increment y position
+                    xPos = xPos_start
+                    yPos += lineHeight
+                
+                # draw word
+                win.blit(word_surface, (xPos, yPos))
+
+                # increment x position by word width
+                xPos += wordWidth + font.size(" ")[0]
+            
+            # reset x position and increment y position
+            xPos = xPos_start
+            yPos += lineHeight
+
+    return
+
+# returns true if user enters a valid key (a-z or 0-9 or spacebar)
+def isValid(key, requestType):
+
+    # response only allows a-z and spaces
+    if requestType == 'name':
+        if 97 <= key <= 122 or key == 32:
+            return True
+
+    # subject number and level selection only allow digits
+    elif requestType == 'subject number' or requestType == 'starting level (1 - 99)':
+        if 48 <= key <= 57:
+            return True
+        
+    return False
     
+# gets user's response and subject ID
+def getSubjectInfo(requestType, win):
+
+    response = "" 
+    exit = False
+
+    # event loop
     while True:
-        mouse.setVisible(False)
-        keys = event.getKeys()
-        for key in keys:
-            if key == quitKey:
-                win.close()
-                core.quit()
-                return
-            elif key == 'return':
-                return subjectNum
-            elif key == 'backspace':
-                if subjectNum != '':
-                    subjectNum = subjectNum[:-1]
-            elif key in validNumbers:
-                subjectNum = subjectNum + key
-        mouse.setVisible(False)
-        prompt = visual.TextStim(win = win, text = numPrompt + subjectNum, height = 0.2, color = textColor)
-        mouse.setVisible(False)
-        prompt.draw()
-        mouse.setVisible(False)
-        win.flip()
-        mouse.setVisible(False)
+        for event in pg.event.get():
+
+            # if user presses a key, then...
+            if event.type == pg.KEYDOWN:
+
+                # lets the user quit
+                if event.key == pg.K_ESCAPE:
+                    exit_key = pg.K_ESCAPE
+                    exit = True
+                    
+                # if they press enter or return, then...
+                if event.key == pg.K_KP_ENTER or event.key == pg.K_RETURN:
+                    
+                    if (requestType == 'name' or requestType == 'subject number' or \
+                    (requestType == 'starting level (1 - 99)' and (1 <= int('0' + response) <= 99))) and len(response) > 0:
+                        
+                        # set the exit key to the key they pressed and set the exit boolean to true
+                        exit_key = event.key
+                        exit = True
+                
+                # delete last character if they press backspace or delete
+                elif event.key == pg.K_BACKSPACE or event.key == pg.K_DELETE:
+                    response = response[:-1] 
+                
+                # if they enter a valid key (a-z, 0-9, or spacebar)
+                elif isValid(event.key, requestType):
+                    if (pg.key.get_mods() & pg.KMOD_CAPS) or (pg.key.get_mods() & pg.KMOD_SHIFT):
+                        response = response + chr(event.key).upper()
+                    else:
+                        response = response + chr(event.key)
+        if exit == True:
+            break
+        win.fill(backgroundColor) 
+        text = "Please enter the requested information. Then press Enter or Return to continue. Press ESC to exit or inform the observer of your decision. \n\n"
+        multiLineMessage(text + f'\n{requestType}: ' + response, mediumFont, win)
+        pg.display.flip()
+
+    # if the user pressed either return or enter, then we continue
+    if exit_key == pg.K_RETURN or exit_key == pg.K_KP_ENTER:
+        return response 
+    
+    # otherwise, they pressed the exit key and we exit the game
+    else:
+        pg.quit()
+        sys.exit()
+        
 
 # records a user's response to a given trial
-def recordResponse(subjectName, subjectNumber, weightingScheme, blockType, stimulusNumber, stimulusType, response, responseTime, savePath):
+def recordResponse(subjectName, subjectNumber, block, stimulusNumber, stimulusType, response, responseTime, saveFolder):
     
     # path to the save file
-    filePath = os.path.join(savePath, f'{blockType}.csv')
+    filePath = os.path.join(saveFolder, f'{block}.csv')
 
     # prepare the header and the data
-    header = ['Subject Name', 'Subject Number', 'Weighting Scheme', 'Block Type', 'Stimulus Number', 'Stimulus Type', 'Subject Response', 'Response Time']
-    data = [subjectName, subjectNumber, weightingScheme, blockType, stimulusNumber, stimulusType, response, responseTime]
+    header = ['Subject Name', 'Subject Number', 'Block Scheme', 'Stimulus Number', 'Stimulus Type', 'Subject Response', 'Response Time']
+    data = [subjectName, subjectNumber, block, stimulusNumber, stimulusType, response, '%.5f'%(responseTime / 1000)]
 
     # if csv file does not exist, then write the header and the data
     if not os.path.exists(filePath):
-        with open(filePath, 'w', newline = '') as file:
+        with open(filePath, mode = 'w', newline = '') as file:
             writer = csv.writer(file)
             writer.writerow(header)
             writer.writerow(data)
 
     # otherwise just write the data
     else:
-        with open(filePath, 'a', newline = '') as file:
+        with open(filePath, mode = 'a', newline = '') as file:
             writer = csv.writer(file)
             writer.writerow(data)
     return
@@ -132,8 +260,11 @@ def recordResponse(subjectName, subjectNumber, weightingScheme, blockType, stimu
 # calculates a dprime score
 def calculateDprime(hits, misses, correctRejections, falseAlarms):
     
-    hitRate = hits / (hits + misses)
-    falseAlarmRate = falseAlarms / (falseAlarms + correctRejections)
+    try: 
+        hitRate = hits / (hits + misses)
+        falseAlarmRate = falseAlarms / (falseAlarms + correctRejections)
+    except:
+        return 'NaN'
 
     # values for fixing extreme d primes
     halfHit = 0.5 / (hits + misses)
@@ -158,91 +289,67 @@ def calculateDprime(hits, misses, correctRejections, falseAlarms):
     return dprime
 
 # writes summary data about user's performance
-def writeSummaryData(subjectName, subjectNumber, weightingScheme, initialBlockType, savePath):
+def writeSummaryData(subjectName, subjectNumber, blocks, saveFolder):
 
-    filePath = os.path.join(savePath, 'summaryData.csv')
-    loadPathUncorrelated = os.path.join(savePath, 'noCorrelation.csv')
-    loadPathIcorrelated = os.path.join(savePath, 'iCorrelation.csv')
+    # Path to where we save the data
+    filePath = os.path.join(saveFolder, 'summaryData.csv')
 
-    # prepare header and data (minus dprimes)
-    summaryDataHeader = ['Subject Name', 'Subject Number', 'Weighting Scheme', 'First Block Type', 'No Correlation Block Dprime', 'I-Correlated Block Dprime']
-    summaryDatadata = [subjectName, subjectNumber, weightingScheme, initialBlockType]
-
-    # caclulate dprimes for uncorrelated distractors
-    with open(loadPathUncorrelated, mode = 'r', newline = '') as f:
-        reader = csv.reader(f)
-        lines = list(reader)
-        header = lines[0]
-        data = lines[1:]
-
-        # create a dictionary to easily access data entries
-        indices = {}
-        for i, entry in enumerate(header):
-            indices[entry] = i
-
-        # collecting relevant data for calculating dprime
-        hits = 0
-        misses = 0
-        falseAlarms = 0
-        correctRejections = 0
-
-        for entry in data:
-            if entry[indices['Stimulus Type']] == 'target' and entry[indices['Subject Response']] == 'target':
-                hits += 1
-            elif entry[indices['Stimulus Type']] == 'target' and entry[indices['Subject Response']] == 'distractor':
-                misses += 1
-            elif entry[indices['Stimulus Type']] == 'distractor' and entry[indices['Subject Response']] == 'target':
-                falseAlarms += 1
-            else:
-                correctRejections += 1
-        print(hits)
-        print(misses)
-        print(falseAlarms)
-        print(correctRejections)
-        dprime = calculateDprime(hits, misses, correctRejections, falseAlarms)
-        summaryDatadata.append(str(dprime))
-
+    # add files in correct order so we load and calculate data in correct order
+    dataFiles = []
+    for block in blocks:
+        dataFiles.append(os.path.join(saveFolder, f'{block}.csv'))
+    
 
     # caclulate dprimes for uncorrelated distractors
-    with open(loadPathIcorrelated, mode = 'r', newline = '') as f:
-        reader = csv.reader(f)
-        lines = list(reader)
-        header = lines[0]
-        data = lines[1:]
+    dprimes = []
+    for dataFile in dataFiles:
+        with open(dataFile, mode = 'r', newline = '') as f:
+            reader = csv.reader(f)
+            lines = list(reader)
+            header = lines[0]
+            data = lines[1:]
 
-        # create a dictionary to easily access data entries
-        indices = {}
-        for i, entry in enumerate(header):
-            indices[entry] = i
+            # create a dictionary to easily access data entries
+            indices = {}
+            for i, entry in enumerate(header):
+                indices[entry] = i
 
+            # collecting relevant data for calculating dprime
+            hits = 0
+            misses = 0
+            falseAlarms = 0
+            correctRejections = 0
 
-        # collecting relevant data for calculating dprime
-        hits = 0
-        misses = 0
-        falseAlarms = 0
-        correctRejections = 0
+            for entry in data:
+                if entry[indices['Stimulus Type']] == 'target' and entry[indices['Subject Response']] == 'target':
+                    hits += 1
+                elif entry[indices['Stimulus Type']] == 'target' and entry[indices['Subject Response']] == 'distractor':
+                    misses += 1
+                elif entry[indices['Stimulus Type']] == 'distractor' and entry[indices['Subject Response']] == 'target':
+                    falseAlarms += 1
+                else:
+                    correctRejections += 1
+            print(dataFile)
+            print(hits)
+            print(misses)
+            print(falseAlarms)
+            print(correctRejections)
+            dprime = calculateDprime(hits, misses, correctRejections, falseAlarms)
+            dprimes.append(dprime)
 
-        for entry in data:
-            if entry[indices['Stimulus Type']] == 'target' and entry[indices['Subject Response']] == 'target':
-                hits += 1
-            elif entry[indices['Stimulus Type']] == 'target' and entry[indices['Subject Response']] == 'distractor':
-                misses += 1
-            elif entry[indices['Stimulus Type']] == 'distractor' and entry[indices['Subject Response']] == 'target':
-                falseAlarms += 1
-            else:
-                correctRejections += 1
-        print(hits)
-        print(misses)
-        print(falseAlarms)
-        print(correctRejections)
-        dprime = calculateDprime(hits, misses, correctRejections, falseAlarms)
-        summaryDatadata.append(str(dprime))
+    # prepare header and data for writing
+    summaryDataHeader = ['Subject Name', 'Subject Number',  'Block 1', 'Block 1 D-Prime', 'Block 2', 'Block 2 D-Prime', 'Block 3', 'Block 3 D-Prime', 'Block 4', 'Block 4 D-Prime']
+    summaryData = [subjectName, subjectNumber]
+    for i, block in enumerate(blocks):
+        summaryData.append(f'{block}')
+        summaryData.append(dprimes[i])
+
 
     # write results to summary data file
     with open(filePath, mode = 'w', newline = '') as f:
         writer = csv.writer(f)
         writer.writerow(summaryDataHeader)
-        writer.writerow(summaryDatadata)
+        writer.writerow(summaryData)
         
 
 # =======================================================================
@@ -252,227 +359,98 @@ def writeSummaryData(subjectName, subjectNumber, weightingScheme, initialBlockTy
 def getStimuli():
     
     # get the current file's path
-    curDir = os.path.dirname(__file__)
+    stimuliDir = os.path.join(os.path.dirname(__file__), 'stimuli')
 
-    # get paths to the gaussian stimuli
-    gaussianHPath = os.path.join(curDir, 'stimuli', 'gaussianH')
-    gaussianIPath = os.path.join(curDir, 'stimuli', 'gaussianI')
-    gaussianNoCorrelationPath = os.path.join(curDir, 'stimuli', 'gaussianUncorrelated')
+    # list of file names as paths (gaussian)
+    gaussianHStimuli_uncorrelated = [os.path.join(stimuliDir, 'gaussianUncorrelatedH', fileName) for fileName in os.listdir(os.path.join(stimuliDir, 'gaussianUncorrelatedH'))]
+    gaussianHStimuli_icorrelated = [os.path.join(stimuliDir, 'gaussianICorrelatedH', fileName) for fileName in os.listdir(os.path.join(stimuliDir,'gaussianICorrelatedH'))]
+    gaussianIStimuli = [os.path.join(stimuliDir, 'gaussianI', fileName) for fileName in os.listdir(os.path.join(stimuliDir,'gaussianI'))]
+    gaussianNoCorrelationStimuli = [os.path.join(stimuliDir, 'gaussianUncorrelated', fileName) for fileName in os.listdir(os.path.join(stimuliDir,'gaussianUncorrelated'))]
 
-    # get the paths to the unweighted stimuli
-    unweightedHPath = os.path.join(curDir, 'stimuli', 'unweightedH')
-    unweightedIPath = os.path.join(curDir, 'stimuli', 'unweightedI')
-    unweightedNoCorrelationPath = os.path.join(curDir, 'stimuli', 'unweightedUncorrelated')
+    # list of file names as paths (unweighted)
+    unweightedHStimuli_uncorrelated = [os.path.join(stimuliDir, 'unweightedUncorrelatedH', fileName) for fileName in os.listdir(os.path.join(stimuliDir, 'unweightedUncorrelatedH'))]
+    unweightedHStimuli_icorrelated = [os.path.join(stimuliDir, 'unweightedICorrelatedH', fileName) for fileName in os.listdir(os.path.join(stimuliDir,'unweightedICorrelatedH'))]
+    unweightedIStimuli = [os.path.join(stimuliDir, 'unweightedI', fileName) for fileName in os.listdir(os.path.join(stimuliDir,'unweightedI'))]
+    unweightedNoCorrelationStimuli = [os.path.join(stimuliDir, 'unweightedUncorrelated', fileName) for fileName in os.listdir(os.path.join(stimuliDir,'unweightedUncorrelated'))]
 
-    # get the gaussian stimuli as lists of file names
-    gaussianHStimuli = os.listdir(gaussianHPath)
-    gaussianIStimuli = os.listdir(gaussianIPath)
-    gaussianNoCorrelationStimuli = os.listdir(gaussianNoCorrelationPath)
+    return gaussianHStimuli_uncorrelated,  gaussianHStimuli_icorrelated, gaussianIStimuli, gaussianNoCorrelationStimuli, \
+    unweightedHStimuli_uncorrelated, unweightedHStimuli_icorrelated, unweightedIStimuli, unweightedNoCorrelationStimuli 
 
-    # get the unweighted stimuli as lists of file names
-    unweightedHStimuli = os.listdir(unweightedHPath)
-    unweightedIStimuli = os.listdir(unweightedIPath)
-    unweightedNoCorrelationStimuli = os.listdir(unweightedNoCorrelationPath)
-
-    return gaussianHStimuli, gaussianIStimuli, gaussianNoCorrelationStimuli, unweightedHStimuli, unweightedIStimuli, unweightedNoCorrelationStimuli
-
-# split an uncorrelated bunch of stimuli into two lists
-def splitStimuli(stimuli, experimentType):
-    blockOneStimuli = [stimulus for stimulus in stimuli if stimulus in os.listdir(os.path.join(os.path.dirname(__file__), 'stimuli', f'{experimentType}BlockOneH'))]
-    blockTwoStimuli = [stimulus for stimulus in stimuli if stimulus in os.listdir(os.path.join(os.path.dirname(__file__), 'stimuli', f'{experimentType}BlockTwoH'))]
-    print(len(blockOneStimuli))
-    print(len(blockTwoStimuli))
-    return blockOneStimuli, blockTwoStimuli
 
 
 # This code is for showing various message screens (e.g. experiment explanation)
+# and functions that display images
 # =======================================================================
 # =======================================================================
-
-# explains the experiment to the subject
-def experimentExplanation(win, letter, mouse):
-    
-    # text height and preparing the explanation text
-    win.color = backgroundColor
-    height = 0.06
-    prompt = visual.TextStim(win = win, text = explanationText(letter), height = height,
-                            color = textColor, wrapWidth = 1.9, alignText = 'left')
-    
-    # wait for the user to press spacebar before the experiment continues
-    while True:
-        mouse.setVisible(False)
-        keys = event.getKeys()
-        for key in keys:
-            if key == quitKey:
-                win.close()
-                core.quit()
-            if key == continueKey:
-                return
-        prompt.draw()
-        win.flip()
-
-# instructions for the real trials
-def realInstructions(win, letter, mouse, stimSize):
-    
-    # text height and preparing the instructions text
-    win.color = backgroundColor
-    height = 0.07
-    prompt = visual.TextStim(win = win, text = realText(letter), height = height,
-                            color = textColor, wrapWidth = 1.9, alignText = 'left')
-    
-    # wait for the user to press spacebar before the experiment continues
-    while True:
-        mouse.setVisible(False)
-        keys = event.getKeys()
-        for key in keys:
-            if key == quitKey:
-                win.close()
-                core.quit()
-                return
-            if key == continueKey:
-                showTemplate(letter, win, mouse, stimSize)
-            return
-        prompt.draw()
-        win.flip()
 
 # shows the stimulus in the "show template once" condition
-def showTemplate(letter, win, mouse, stimSize):
+def showTemplate(win):
 
-    win.color = altBackgroundColor
-    startTime = time.time()
-    curDir = os.path.dirname(__file__)
-    templateImagePath = os.path.join(curDir, 'templates', f'{letter}.png')
-    image = visual.ImageStim(win = win, image = templateImagePath, size = (stimSize, stimSize), units = 'pix')
+    templateImagePath = os.path.join(os.path.dirname(__file__), 'templates', 'H.png')
+    image = pg.transform.scale(pg.image.load(templateImagePath), (stimSize, stimSize))
 
-    # wait for the user to press spacebar before the experiment continues
-    while time.time() - startTime < 10:
-        mouse.setVisible(False)
-        keys = event.getKeys()
-        for key in keys:
-            if key == quitKey:
-                win.close()
-                core.quit()
-                return
-        image.draw()
-        win.flip()
+    # display template to user for 10 seconds
+    win.fill(backgroundColor)
+    win.blit(image, screenCenter)
+    pg.display.flip()
+    startTime = pg.time.get_ticks()
+    while pg.time.get_ticks() - startTime < 1000:
+        for event in pg.event.get():
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    pg.quit()
+                    sys.exit()
     return
+
+# explains the experiment to the subject
+def experimentExplanation(win):
     
-# exit screen thanking the participant
-def breakScreen(win, mouse):
+    win.fill(backgroundColor)
+    multiLineMessage(explanationText, mediumFont, win)
+    pg.display.flip()
+    waitKey(pg.K_f)
 
-    win.color = backgroundColor
-    # text height and preparing the exit screen text
-    height = 0.07
-    prompt = visual.TextStim(win = win, text = breakScreenText, height = height,
-                            color = textColor, wrapWidth = 1.9, alignText = 'left')
-    prompt.draw()
-    win.flip()
-    # wait for the user to press spacebar before the experiment continues
-    while True:
-        mouse.setVisible(False)
-        keys = event.getKeys()
-        for key in keys:
-            if key == quitKey:
-                win.close()
-                core.quit()
-                return
-            if key == breakScreenKey:
-                return
-        prompt.draw()
-        win.flip()
+# instructions for the real trials
+def realInstructions(win):
+    
+    win.fill(backgroundColor)
+    multiLineMessage(realText, mediumFont, win)
+    pg.display.flip()
+    waitKey(pg.K_f)
+
+# break screen thanking the participant
+def breakScreen(win):
+
+    win.fill(backgroundColor)
+    multiLineMessage(breakScreenText, mediumFont, win)
+    pg.display.flip()
+    waitKey(pg.K_f)
 
 # exit screen thanking the participant
-def exitScreen(win, mouse):
+def exitScreen(win):
 
-    # text height and preparing the exit screen text
-    win.color = backgroundColor
-    height = 0.07
-    prompt = visual.TextStim(win = win, text = exitScreenText, height = height,
-                            color = textColor, wrapWidth = 1.9, alignText = 'left')
-    prompt.draw()
-    win.flip()
-    # wait for the user to press spacebar before the experiment continues
-    while True:
-        mouse.setVisible(False)
-        keys = event.getKeys()
-        for key in keys:
-            if key == quitKey:
-                win.close()
-                core.quit()
-                return
-            if key == continueKey:
-                return
-        prompt.draw()
-        win.flip()
+    win.fill(backgroundColor)
+    multiLineMessage(exitScreenText, mediumFont, win)
+    pg.display.flip()
+    waitKey(pg.K_f)
 
 # =======================================================================
 # =======================================================================
 
-# bc the jackasses at psychopy have made this process insufferable
-def deg2pix(degrees, monitor):
-    screen_width = monitor.getWidth()
-    
-    # Calculate the total visual angle subtended by the screen width in degrees
-    total_visual_angle_width = 2 * math.degrees(math.atan(screen_width / (2 * monitor.getDistance())))
-    
-    # Calculate the number of pixels per degree
-    pixels_per_degree = monitor.getSizePix()[0] / total_visual_angle_width
-    
-    return degrees * pixels_per_degree
-
-def selectStimulus(targetStimuli, distractorStimuli, weightingScheme, win, stimSize):
+def selectStimulus(targetStimuli, distractorStimuli):
 
     # select a stimulus and remove it from its associated list
     masterList = targetStimuli + distractorStimuli
     stimulus = random.choice(masterList)
     if stimulus in targetStimuli:
-        imageType = 'target'
+        stimulusType = 'target'
         targetStimuli.remove(stimulus)
     else:
-        imageType = 'distractor'
+        stimulusType = 'distractor'
         distractorStimuli.remove(stimulus)
 
-    # get the path to the image selected
-    imagePath = os.path.join(os.path.dirname(__file__), 'stimuli', weightingScheme,  stimulus)
+    # get the path to the image selected and load the image
+    image = pg.image.load(stimulus)
+    image = pg.transform.scale(image, (stimSize, stimSize))
 
-    # present the image
-    image = visual.ImageStim(win = win, image = imagePath, size = (stimSize, stimSize), units = 'pix')
-
-    return image, stimulus.replace('.png', ''), imageType
-    
-def selectExperimentType():
-    filepath = os.path.join(os.path.dirname(__file__), 'experimentUsages.csv')
-    header = ['Experiment Type', 'Usage']
-    experimentTypes = ['gaussian noCorrelation', 'gaussian iCorrelation', 'unweighted noCorrelation', 'unweighted iCorrelation']
-
-    try:
-        if not os.path.exists(filepath):
-            chosenExperimentType = random.choice(experimentTypes)
-            usageDict = {expType: 1 if expType == chosenExperimentType else 0 for expType in experimentTypes}
-
-        else:
-            with open(filepath, mode='r', newline='') as f:
-                reader = csv.DictReader(f)
-                usageDict = {row['Experiment Type']: int(row['Usage']) for row in reader}
-
-            totalUsage = sum(usageDict.values())
-            if totalUsage == 0:
-                chosenExperimentType = random.choice(experimentTypes)
-            else:
-                weights = [1 / ((usage + 1) ** 2) for usage in usageDict.values()]
-                chosenExperimentType = random.choices(list(usageDict.keys()), weights=weights)[0]
-
-            usageDict[chosenExperimentType] += 1
-
-        with open(filepath, mode='w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=header)
-            writer.writeheader()
-            for expType, usage in usageDict.items():
-                writer.writerow({'Experiment Type': expType, 'Usage': usage})
-
-        weightingScheme, initialBlockType = chosenExperimentType.split()
-        return weightingScheme, initialBlockType
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return None, None
+    return image, os.path.basename(stimulus).replace('.png', ''), stimulusType

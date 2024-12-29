@@ -1,10 +1,6 @@
 import os
+import math
 from screeninfo import get_monitors
-
-backgroundColor = (1,1,1) # background color for screen
-#altBackgroundColor = (int((253 * 2/ 255)) - 1 , int((253 * 2/ 255)) - 1, int((150 * 2/ 255)) - 1)
-altBackgroundColor = (-1,-1,-1)
-textColor = (-1, -1, -1) # text color
 
 continueKey = 'space'
 quitKey = 'escape'
@@ -28,8 +24,59 @@ else:
     winWidth = winfo[0].width
     winHeight = winfo[0].height
 
+screenCenter = (winWidth // 2, winHeight // 2)
+
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (winX, winY)
+
+# Get the size in pixels for 2 degrees of visual angle
+# bc the jackasses at psychopy have made this process insufferable
+def deg2pix(degrees):
+    return 51
+    screen_width = monitor.getWidth()
+    
+    # Calculate the total visual angle subtended by the screen width in degrees
+    total_visual_angle_width = 2 * math.degrees(math.atan(screen_width / (2 * monitor.getDistance())))
+    
+    # Calculate the number of pixels per degree
+    pixels_per_degree = monitor.getSizePix()[0] / total_visual_angle_width
+    
+    return degrees * pixels_per_degree
+
+stim_size_degrees = 2
+stimSize = round(deg2pix(stim_size_degrees))
+
+
+# define some font sizes and colors for easy access
+
+# == Font sizes ==
+extraLargeFont = winHeight // 5
+largeFont = winHeight // 10
+mediumFont = winHeight // 20
+smallFont = winHeight // 30
+
+# == Greyscale ==
+BLACK = [0, 0, 0]
+WHITE = [255, 255, 255]
+GREY = [128, 128, 128]
+SLATEGREY = [112, 128, 144]
+DARKSLATEGREY = [47, 79, 79]
+
+
+# == Yellows ==
+YELLOW = [255, 255, 0]
+OLIVE = [128,128,0]
+DARKKHAKI = [189,183,107]
+
+# == Greens ==
+GREEN = [0, 128, 0]
+GREENYELLOW = [173, 255, 47]
+
+RED = [255, 50, 50]
+
+
+backgroundColor = GREY # background color for screen
+textColor = BLACK # text color
 
 # =======================================================================
 # =======================================================================
@@ -67,22 +114,20 @@ validLetters, validNumbers = getValidChars()
 # =======================================================================
 # =======================================================================
 
-def explanationText(letter):
-    return f'In this task you will be shown a series of squares which contain a pattern of black and white dots. \
-In half of the trials, a black {letter} will be present in the pattern. You will be asked to determine whether or not the {letter} is in the image. \
+explanationText = 'In this task you will be shown a series of squares which contain a pattern of black and white dots. \
+In half of the trials, a black H will be present in the pattern. You will be asked to determine whether or not the H is in the image. \
 It will be very difficult to make this determination, but trust your intuition. \
-The {letter} will not be obvious, but it is always centered, and you will be shown an image of the {letter} for reference before you begin.\n\n\
-For each image, please press "Y" if you believe that you see the {letter} and \
-press "N" if you do not believe that you see the {letter}.\n\n\
+The H will not be obvious, but it is always centered, and you will be shown an image of the H for reference before you begin.\n\n\
+For each image, please press "Y" if you believe that you see the H and \
+press "N" if you do not believe that you see the H.\n\n\
 Remember, you will be better at this task than you think.\n\n\
 Thank you for participating and please let your experimenter know if you encounter any issues or if you would like to terminate your participation in the experiment.\n\n\
 Press the spacebar to continue.\n\n\n'
                 
-def realText(letter): 
-    return f'Remember to press "Y" if you believe that you see an {letter}.\n\n\
-Remember to press "N" if you do not believe that you see an {letter}.\n\n\
-You will now be shown the template {letter} that will be in half of the stimuli.\n\n\
-You will have 10 seconds to view the template {letter}.\n\n\
+realText = 'Remember to press "Y" if you believe that you see an H.\n\n\
+Remember to press "N" if you do not believe that you see an H.\n\n\
+You will now be shown the template H that will be in half of the stimuli.\n\n\
+You will have 10 seconds to view the template H.\n\n\
 After those 10 seconds, the first image will automatically appear and you will begin making your selections.\n\n\
 Press the spacebar to continue when you are ready.'
 
@@ -96,7 +141,17 @@ exitScreenText = 'Thank you for participating in this study!\n\n'\
 
 
 
-                        
+# map the weighting scheme/correlation scheme pair to the actual path to the images
+ImageFolderPathDict = {
+        ('unweighted', 'icorrelated', 'target'): 'unweightedICorrelatedH',
+        ('unweighted', 'icorrelated', 'distractor'): 'unweightedI',
+        ('unweighted', 'uncorrelated', 'target'): 'unweightedUncorrelatedH',
+        ('unweighted', 'uncorrelated', 'distractor'): 'unweightedUncorrelated',
+        ('gaussian', 'icorrelated', 'target'): 'gaussianICorrelatedH',
+        ('gaussian', 'icorrelated', 'distractor'): 'gaussianI',
+        ('gaussian', 'uncorrelated', 'target'): 'gaussianUncorrelatedH',
+        ('gaussian', 'uncorrelated', 'distractor'): 'gaussianUncorrelated',
+    }                
     
 
  
