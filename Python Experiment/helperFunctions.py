@@ -1,7 +1,7 @@
 import os
 import sys
 import csv
-import random
+from random import choice
 from scipy.stats import norm
 import pygame as pg
 from constants import *
@@ -441,7 +441,7 @@ def selectStimulus(targetStimuli, distractorStimuli):
 
     # select a stimulus and remove it from its associated list
     masterList = targetStimuli + distractorStimuli
-    stimulus = random.choice(masterList)
+    stimulus = choice(masterList)
     if stimulus in targetStimuli:
         stimulusType = 'target'
         targetStimuli.remove(stimulus)

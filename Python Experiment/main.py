@@ -1,6 +1,7 @@
 # tests have been run and there is no overlapping stimuli
 import pygame as pg
 from random import shuffle
+from time import sleep
 from helperFunctions import *
 
 
@@ -30,7 +31,7 @@ def experiment(subjectName, subjectNumber, block, targetStimuli, distractorStimu
 
                 # handles response keys (y for "yes, the stimulus is here". "n" otherwise)
                 elif event.key == pg.K_y or event.key == pg.K_n:
-
+                
                     # indicates we will reset the experiment once a response is selected
                     reset = True
 
@@ -47,6 +48,7 @@ def experiment(subjectName, subjectNumber, block, targetStimuli, distractorStimu
                     # 2 second rest between each stimulus
                     win.fill(backgroundColor)
                     pg.display.flip()
+                    sleep(2)
                     pg.event.clear()
             
         # while the trial continues on just keep the image on the screen until they give a response
@@ -62,8 +64,7 @@ def experiment(subjectName, subjectNumber, block, targetStimuli, distractorStimu
             reset = False
             
             # end experiment if we have shown all of the images
-            #if (len(targetStimuli) == 0 and len(distractorStimuli) == 0):
-            if (len(targetStimuli) == 95 or len(distractorStimuli) == 95):
+            if (len(targetStimuli) == 0 and len(distractorStimuli) == 0):
                 return
             
             # otherwise select a new image
@@ -119,7 +120,8 @@ def main():
     }
     
     # shuffle the blocks randomly, preserving gaussian with gaussian and unweighted with unweighted
-    shuffledBlocks = [['unweighted_icorrelated', 'unweighted_uncorrelated'], ['gaussian_icorrelated', 'gaussian_uncorrelated']]   
+    shuffledBlocks = [['unweighted_icorrelated', 'unweighted_uncorrelated'],
+                    ['gaussian_icorrelated', 'gaussian_uncorrelated']]   
     for block in shuffledBlocks:
         shuffle(block)
     shuffle(shuffledBlocks)

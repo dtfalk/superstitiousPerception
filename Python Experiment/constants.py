@@ -1,16 +1,15 @@
 import os
-import math
+from math import tan, radians
 from screeninfo import get_monitors
-
-continueKey = 'space'
-quitKey = 'escape'
-breakScreenKey = 'k'
 
 # This block of code gets info about the subject's monitor
 # =======================================================================
 # =======================================================================
 
-# get screen size for each monitor in the system
+screen_width_in_centimeters = 31.5
+distance_from_screen_in_centimeters = 69
+
+# get screen size for each monitor in the syste m
 winfo = get_monitors()
 if len(winfo) > 1:
     winX = winfo[1].x
@@ -24,27 +23,29 @@ else:
     winWidth = winfo[0].width
     winHeight = winfo[0].height
 
-screenCenter = (winWidth // 2, winHeight // 2)
-
 
 os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (winX, winY)
 
 # Get the size in pixels for 2 degrees of visual angle
-# bc the jackasses at psychopy have made this process insufferable
-def deg2pix(degrees):
-    return 51
-    screen_width = monitor.getWidth()
+def deg2pix():
     
-    # Calculate the total visual angle subtended by the screen width in degrees
-    total_visual_angle_width = 2 * math.degrees(math.atan(screen_width / (2 * monitor.getDistance())))
     
-    # Calculate the number of pixels per degree
-    pixels_per_degree = monitor.getSizePix()[0] / total_visual_angle_width
+    # Calculate the total visual angle width in cm
+    width_in_cm = 2 * distance_from_screen_in_centimeters * tan(radians(2) / 2)
     
-    return degrees * pixels_per_degree
+    # Calculate the number of pixels per degree as
+    pixels_per_cm = winWidth / screen_width_in_centimeters
 
-stim_size_degrees = 2
-stimSize = round(deg2pix(stim_size_degrees))
+    # total pixel width
+    total_width_in_pixels = width_in_cm * pixels_per_cm
+
+    return total_width_in_pixels
+
+# gives us the size we must scale the images by
+stimSize = round(deg2pix())
+
+# screen center for drawing images
+screenCenter = ((winWidth // 2) - (stimSize // 2), (winHeight // 2) - (stimSize // 2))
 
 
 # define some font sizes and colors for easy access
