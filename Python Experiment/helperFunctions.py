@@ -394,7 +394,7 @@ def showTemplate(win):
     win.blit(image, screenCenter)
     pg.display.flip()
     startTime = pg.time.get_ticks()
-    while pg.time.get_ticks() - startTime < 1000:
+    while pg.time.get_ticks() - startTime < int(10 * 1000):
         for event in pg.event.get():
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
@@ -408,7 +408,7 @@ def experimentExplanation(win):
     win.fill(backgroundColor)
     multiLineMessage(explanationText, mediumFont, win)
     pg.display.flip()
-    waitKey(pg.K_f)
+    waitKey(pg.K_SPACE)
 
 # instructions for the real trials
 def realInstructions(win):
@@ -416,7 +416,7 @@ def realInstructions(win):
     win.fill(backgroundColor)
     multiLineMessage(realText, mediumFont, win)
     pg.display.flip()
-    waitKey(pg.K_f)
+    waitKey(pg.K_SPACE)
 
 # break screen thanking the participant
 def breakScreen(win):
