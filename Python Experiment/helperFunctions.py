@@ -51,7 +51,7 @@ def waitKey(key):
                     sys.exit()
 
 # function to draw/fit a multiline message to the screen
-def multiLineMessage(text, textsize, win):
+def multiLineMessage(text, textsize, win, ):
 
     # set font and text color
     font = pg.font.SysFont("arial", textsize)
@@ -161,7 +161,7 @@ def multiLineMessage(text, textsize, win):
             xPos = xPos_start
             yPos += lineHeight
 
-    return
+    return yPos
 
 # returns true if user enters a valid key (a-z or 0-9 or spacebar)
 def isValid(key, requestType):

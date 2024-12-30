@@ -3,6 +3,7 @@ import pygame as pg
 from random import shuffle
 from time import sleep
 from helperFunctions import *
+from questionnaires import main as questions
 
 
 # The experiment itself
@@ -127,12 +128,12 @@ def main():
     shuffle(shuffledBlocks)
 
     blocks = shuffledBlocks[0] + shuffledBlocks[1]
-    print(blocks)
 
     # ============================================================================================
 
     
     # showing the user the experiment
+    questions(subjectNumber, win)
     experimentExplanation(win)
     pg.event.clear()
     realInstructions(win)

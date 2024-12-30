@@ -31,7 +31,7 @@ def deg2pix():
     
     
     # Calculate the total visual angle width in cm
-    width_in_cm = 2 * distance_from_screen_in_centimeters * tan(radians(2) / 2)
+    width_in_cm = 2 * distance_from_screen_in_centimeters * tan(radians(1))
     
     # Calculate the number of pixels per degree as
     pixels_per_cm = winWidth / screen_width_in_centimeters
