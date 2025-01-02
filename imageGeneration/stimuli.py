@@ -74,6 +74,7 @@ def createAndSaveBatch(start, imagesPath, arraysPath):
     array = np.stack([np.array(img) for img in images])  # Stack images to create 3D array
     np.save(os.path.join(arraysPath, f'{start}.npy'), array)  # Save array
 
+    print(f'{start} finished')
     # Save individual images
     saveBatch(images, start, imageBatchPath)
 

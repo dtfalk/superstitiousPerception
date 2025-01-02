@@ -10,30 +10,36 @@ import csv
 class Button:
 
     # initializes an instance of a button
-    def __init__(self, buttonType, questionnaireName, text, i, yPos):
+    def __init__(self, buttonType, questionnaireName, text, i, yPosQuestion):
 
+        self.fontSize = mediumFont
 
-        if buttonType == 'option': # creates a box to click and text for questionnaire options
+         # creates a box to click and text for questionnaire options
+        if buttonType == 'option':
             if questionnaireName == 'tellegen':
-                fontSize = mediumFont
-                self.coords = (0.05 * winWidth, yPos + (1.75 * i * fontSize), fontSize, fontSize)
+                scalar = 1.75
             elif questionnaireName == 'launay':
-                fontSize = mediumFont
-                self.coords = (0.05 * winWidth, yPos + (1.50 * i * fontSize), fontSize, fontSize)
+                scalar = 1.5
             elif questionnaireName == 'dissociative':
-                fontSize = mediumFont * 0.85
-                self.coords = (0.05 * winWidth, yPos + (1.3 * i * fontSize), fontSize, fontSize)
+                scalar = 1.75
+            spacing = scalar * i * self.fontSize 
+            maxY = 0.85 * winHeight
+            self.coords = ((0.05 * winWidth) + (0.45 * winWidth) * ((yPosQuestion + spacing) // maxY), 
+                           yPosQuestion + (spacing % (maxY - yPosQuestion)), 
+                           self.fontSize, 
+                           self.fontSize)
             self.checkbox = pg.Rect(self.coords)
             self.text = text
+            self.text_x = self.coords[0] + 1.5 * self.fontSize
+            self.text_y = self.coords[1] - 0.1 * self.fontSize
             self.color = WHITE
             
-        
         else: # creates the submit button so the user may submit their response
-            fontSize = mediumFont
-            self.coords = ((winWidth // 2) - (0.05 * winWidth), 0.85 * winHeight, 0.1 * winWidth, 1.1 * fontSize)
+            self.fontSize = int(0.85 * mediumFont)
+            self.coords = (0.45 * winWidth, 0.85 * winHeight, 0.1 * winWidth, 1.1 * self.fontSize)
             self.checkbox = pg.Rect(self.coords)
             self.text = 'Submit'
-            self.text_x = (winWidth // 2) - (0.05 * winWidth)
+            self.text_x = 0.46 * winWidth
             self.text_y = self.checkbox.top
             self.color = WHITE
         
@@ -41,22 +47,10 @@ class Button:
         self.buttonType = buttonType # question option vs submit button
     
     # draw function for each button
-    def draw(self, questionnaireName, win):
-
-        if self.buttonType == 'option':
-            text_x = self.coords[0] + 1.5 * mediumFont
-            text_y = self.coords[1]
-        else:
-            text_x = self.text_x
-            text_y = self.text_y
+    def draw(self, win):
         pg.draw.rect(win, self.color, self.checkbox)
-        if questionnaireName == 'tellegen':
-            text_surface = pg.font.SysFont("arial", mediumFont).render(self.text, True, BLACK)
-        elif questionnaireName == 'launay':
-            text_surface = pg.font.SysFont("arial", mediumFont).render(self.text, True, BLACK)
-        elif questionnaireName == 'dissociative':
-            text_surface = pg.font.SysFont("arial", int(0.85 * mediumFont)).render(self.text, True, BLACK)
-        win.blit(text_surface, (text_x, text_y))
+        text_surface = pg.font.SysFont("times new roman", self.fontSize).render(self.text, True, BLACK)     
+        win.blit(text_surface, (self.text_x, self.text_y))
 
     # handles button clicks
     def handleClick(self, buttons):
@@ -74,7 +68,6 @@ class Button:
                     self.checked = True
                     return button.text
             
-    
     # unselects all other questions
     def unselectOthers(self, buttons):
         for button in buttons:
@@ -240,7 +233,9 @@ def tellegen(subjectNumber, win):
         response = None
 
         # draw the question and return how far down the screen the text goes
-        yPos = multiLineMessage(question[0], mediumFont, win)
+        yPos = 0
+        for question in questions:
+            yPos = max(yPos, multiLineMessage(question[0], mediumFont, win))
 
         # create all of the options for this particular questions
         buttons = [submitButton]
@@ -250,7 +245,6 @@ def tellegen(subjectNumber, win):
             buttons.append(Button('option', 'tellegen', question_option, i, yPos))
 
         while response == None:
-
             win.fill(backgroundColor)
             for event in pg.event.get():
                 if event.type == pg.KEYDOWN:
@@ -266,23 +260,21 @@ def tellegen(subjectNumber, win):
             # draw the question and return how far down the screen the text goes
             multiLineMessage(question[0], mediumFont, win)
 
-            # draw the submit button
-            submitButton.draw('tellegen', win)
-
-            # display each option (checkbox + text)
+            # draw the submit button and the checkboxes for this questions
+            submitButton.draw(win)
             for i, button in enumerate(buttons): 
-                button.draw('tellegen', win)
-
+                button.draw(win)
             pg.display.flip() 
         
+        # add the user's response to the list of responses
         responses.append(response)
     
-
+    # write all of the responses to a csv file with the questionnaire's name as the file name. 
     with open(os.path.join(os.path.dirname(__file__), 'results', subjectNumber, 'tellegen.csv'), mode = 'w', newline = '') as f:
         writer = csv.writer(f)
         header = [f'Q{i + 1}' for i in range(len(questions))]
         writer.writerow(header)
-        writer.writerow(responses)
+        writer.writerow([responses])
     return
 
 # contains questionnaire questions and displays questionnaire to the subject
@@ -349,7 +341,9 @@ def launay_slade(subjectNumber, win):
         response = None
 
         # draw the question and return how far down the screen the text goes
-        yPos = multiLineMessage(question[0], mediumFont, win)
+        yPos = 0
+        for question in questions:
+            yPos = max(yPos, multiLineMessage(question[0], mediumFont, win))
 
         # create all of the options for this particular questions
         buttons = [submitButton]
@@ -375,23 +369,21 @@ def launay_slade(subjectNumber, win):
             # draw the question and return how far down the screen the text goes
             multiLineMessage(question[0], mediumFont, win)
 
-            # draw the submit button
-            submitButton.draw('launay', win)
-
-            # display each option (checkbox + text)
+            # draw the submit button and the questions
+            submitButton.draw(win)
             for i, button in enumerate(buttons): 
-                button.draw('launay', win)
-
+                button.draw( win)
             pg.display.flip() 
         
+        # add the user's response to the list of responses
         responses.append(response)
     
-
+    # write the responses to a csv file with the questionnaire's name
     with open(os.path.join(os.path.dirname(__file__), 'results', subjectNumber, 'launay_slade.csv'), mode = 'w', newline = '') as f:
         writer = csv.writer(f)
         header = [f'Q{i + 1}' for i in range(len(questions))]
         writer.writerow(header)
-        writer.writerow(responses)
+        writer.writerow([''.join([ch for ch in response if ch.isdigit()]) for response in responses])
     return
 
 # contains questionnaire questions and displays questionnaire to the subject
@@ -437,7 +429,7 @@ def dissociative_experiences(subjectNumber, win):
     ResponseOptions9 = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
     questions.append([question9] + ResponseOptions9)
     
-    question10 = ' Some people have the experience of being accused of lying when they do not think that they have lied. Select a box to show what percentage of the time this happens to you.'
+    question10 = 'Some people have the experience of being accused of lying when they do not think that they have lied. Select a box to show what percentage of the time this happens to you.'
     ResponseOptions10 = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
     questions.append([question10] + ResponseOptions10)
 
@@ -445,15 +437,15 @@ def dissociative_experiences(subjectNumber, win):
     ResponseOptions11 = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
     questions.append([question11] + ResponseOptions11)
 
-    question12 = ". Some people sometimes have the experience of feeling that other people, objects, and the world around them are not real. Select a box to show what percentage of the time this happens to you."
+    question12 = "Some people sometimes have the experience of feeling that other people, objects, and the world around them are not real. Select a box to show what percentage of the time this happens to you."
     ResponseOptions12 = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
     questions.append([question12] + ResponseOptions12)
 
-    question13 = ' Some people sometimes have the experience of feeling that their body does not belong to them. Select a box to show what percentage of the time this happens to you.'
+    question13 = 'Some people sometimes have the experience of feeling that their body does not belong to them. Select a box to show what percentage of the time this happens to you.'
     ResponseOptions13 = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
     questions.append([question13] + ResponseOptions13)
 
-    question14 = 'Some people have the experience of sometimes remembering a past event so vividly that they feel as if they were reliving that event. Select a box to show what percentage of the time this happens to you'
+    question14 = 'Some people have the experience of sometimes remembering a past event so vividly that they feel as if they were reliving that event. Select a box to show what percentage of the time this happens to you.'
     ResponseOptions14 = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
     questions.append([question14] + ResponseOptions14)
 
@@ -461,7 +453,7 @@ def dissociative_experiences(subjectNumber, win):
     ResponseOptions15 = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
     questions.append([question15] + ResponseOptions15)
 
-    question16 = ' Some people have the experience of being in a familiar place but finding it strange and unfamiliar. Select a box to show what percentage of the time this happens to you'
+    question16 = ' Some people have the experience of being in a familiar place but finding it strange and unfamiliar. Select a box to show what percentage of the time this happens to you.'
     ResponseOptions16 = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
     questions.append([question16] + ResponseOptions16)
 
@@ -501,15 +493,15 @@ def dissociative_experiences(subjectNumber, win):
     ResponseOptions25 = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
     questions.append([question25] + ResponseOptions25)
 
-    question26 = ' Some people sometimes find writings, drawings, or notes among their belongings that they must have done but cannot remember doing. Select a box to show what percentage of the time this happens to you.'
+    question26 = 'Some people sometimes find writings, drawings, or notes among their belongings that they must have done but cannot remember doing. Select a box to show what percentage of the time this happens to you.'
     ResponseOptions26 = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
     questions.append([question26] + ResponseOptions26)
 
-    question27 = '. Some people find that they sometimes hear voices inside their head that tell them to do things or comment on things that they are doing. Select a box to show what percentage of the time this happens to you.'
+    question27 = 'Some people find that they sometimes hear voices inside their head that tell them to do things or comment on things that they are doing. Select a box to show what percentage of the time this happens to you.'
     ResponseOptions27 = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
     questions.append([question27] + ResponseOptions27)
 
-    question28 = ' Some people sometimes feels as if they are looking at the world through a fog so that people or objects appear far away or unclear. Select a box to show what percentage of the time this happens to you.'
+    question28 = 'Some people sometimes feels as if they are looking at the world through a fog so that people or objects appear far away or unclear. Select a box to show what percentage of the time this happens to you.'
     ResponseOptions28 = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
     questions.append([question28] + ResponseOptions28)
 
@@ -518,11 +510,11 @@ def dissociative_experiences(subjectNumber, win):
 
     # iterate over each question and display to user
     for question in questions:
-        
-        response = None
 
         # draw the question and return how far down the screen the text goes
         yPos = multiLineMessage(question[0], mediumFont, win)
+
+        response = None
 
         # create all of the options for this particular questions
         buttons = [submitButton]
@@ -532,7 +524,6 @@ def dissociative_experiences(subjectNumber, win):
             buttons.append(Button('option', 'dissociative', question_option, i, yPos))
 
         while response == None:
-
             win.fill(backgroundColor)
             for event in pg.event.get():
                 if event.type == pg.KEYDOWN:
@@ -548,22 +539,21 @@ def dissociative_experiences(subjectNumber, win):
             # draw the question and return how far down the screen the text goes
             multiLineMessage(question[0], mediumFont, win)
 
-            # draw the submit button
-            submitButton.draw('dissociative', win)
-
-            # display each option (checkbox + text)
+            # draw the submit button and display each checkbox
+            submitButton.draw(win)
             for i, button in enumerate(buttons): 
-                button.draw('dissociative', win)
-
+                button.draw( win)
             pg.display.flip() 
-        
+
+        # add the user's response to this question to the list of responses
         responses.append(response)
 
+    # write the questionnaire responses to a csv file with the questionaire's name
     with open(os.path.join(os.path.dirname(__file__), 'results', subjectNumber, 'dissociative_experiences.csv'), mode = 'w', newline = '') as f:
         writer = csv.writer(f)
         header = [f'Q{i + 1}' for i in range(len(questions))]
         writer.writerow(header)
-        writer.writerow(responses)
+        writer.writerow([''.join([ch for ch in response if ch.isdigit()]) for response in responses])
     return
 
 

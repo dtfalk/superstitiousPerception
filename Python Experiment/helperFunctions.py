@@ -54,7 +54,7 @@ def waitKey(key):
 def multiLineMessage(text, textsize, win, ):
 
     # set font and text color
-    font = pg.font.SysFont("arial", textsize)
+    font = pg.font.SysFont("times new roman", textsize)
     color = BLACK
 
     # Initialize variables for layout calculations
@@ -113,7 +113,7 @@ def multiLineMessage(text, textsize, win, ):
     # Adjust font size until the text fits within the area
     while not fitsWithinArea(text, font) and textsize > 1:
         textsize -= 1
-        font = pg.font.SysFont("arial", textsize)
+        font = pg.font.SysFont("times new roman", textsize)
 
     # Draw the background and boundaries only once
     win.fill(backgroundColor)
