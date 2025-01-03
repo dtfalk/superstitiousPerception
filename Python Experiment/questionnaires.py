@@ -12,37 +12,34 @@ class Button:
     # initializes an instance of a button
     def __init__(self, buttonType, questionnaireName, text, i, yPosQuestion):
 
-        self.fontSize = mediumFont
-
          # creates a box to click and text for questionnaire options
         if buttonType == 'option':
+            self.fontSize = mediumFont
             if questionnaireName == 'tellegen':
                 scalar = 1.75
             elif questionnaireName == 'launay':
                 scalar = 1.5
             elif questionnaireName == 'dissociative':
-                scalar = 1.75
+                scalar = 1.5
             spacing = scalar * i * self.fontSize 
-            maxY = 0.85 * winHeight
-            self.coords = ((0.05 * winWidth) + (0.45 * winWidth) * ((yPosQuestion + spacing) // maxY), 
-                           yPosQuestion + (spacing % (maxY - yPosQuestion)), 
+            buffer = winHeight // 20
+            maxY = (0.85 * winHeight) - self.fontSize
+            self.coords = ((0.05 * winWidth) + (0.45 * winWidth) * ((yPosQuestion + spacing + buffer) // maxY), 
+                           yPosQuestion + buffer + (spacing % (maxY - (yPosQuestion + buffer))), 
                            self.fontSize, 
                            self.fontSize)
-            self.checkbox = pg.Rect(self.coords)
-            self.text = text
             self.text_x = self.coords[0] + 1.5 * self.fontSize
             self.text_y = self.coords[1] - 0.1 * self.fontSize
-            self.color = WHITE
             
         else: # creates the submit button so the user may submit their response
             self.fontSize = int(0.85 * mediumFont)
             self.coords = (0.45 * winWidth, 0.85 * winHeight, 0.1 * winWidth, 1.1 * self.fontSize)
-            self.checkbox = pg.Rect(self.coords)
-            self.text = 'Submit'
             self.text_x = 0.46 * winWidth
-            self.text_y = self.checkbox.top
-            self.color = WHITE
+            self.text_y = self.coords[1]
         
+        self.color = WHITE
+        self.text = text
+        self.checkbox = pg.Rect(self.coords)
         self.checked = False # is the checkbox checked or not
         self.buttonType = buttonType # question option vs submit button
     
@@ -233,6 +230,9 @@ def tellegen(subjectNumber, win):
         response = None
 
         if i == 0:
+            multiLineMessage(questionnairesIntroText, mediumFont, win)
+            pg.display.flip()
+            waitKey(pg.K_SPACE)
             multiLineMessage(telleganScaleText, mediumFont, win)
             pg.display.flip()
             waitKey(pg.K_SPACE)
@@ -535,7 +535,7 @@ def dissociative_experiences(subjectNumber, win):
         for i, question_option in enumerate(question):
             if i == 0:
                 continue
-            buttons.append(Button('option', 'dissociative', question_option, i, yPos))
+            buttons.append(Button('option', 'dissociative', question_option, i - 1, yPos))
 
         while response == None:
             win.fill(backgroundColor)
@@ -575,8 +575,8 @@ def dissociative_experiences(subjectNumber, win):
 def main(subjectNumber, win):
 
     pg.mouse.set_visible(True)
-    tellegen(subjectNumber, win)
-    launay_slade(subjectNumber, win)
+    # tellegen(subjectNumber, win)
+    # launay_slade(subjectNumber, win)
     dissociative_experiences(subjectNumber, win)
     pg.mouse.set_visible(False)
 

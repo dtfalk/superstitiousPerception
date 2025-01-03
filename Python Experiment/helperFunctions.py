@@ -402,9 +402,16 @@ def showTemplate(win):
                     sys.exit()
     return
 
+
+# Tell the user that they are beginning the real experiment and have completed the questionnaires
+def experimentIntro(win):
+    win.fill(backgroundColor)
+    multiLineMessage(experimentIntroText, mediumFont, win)
+    pg.display.flip()
+    waitKey(pg.K_SPACE)
+
 # explains the experiment to the subject
 def experimentExplanation(win):
-    
     win.fill(backgroundColor)
     multiLineMessage(explanationText, mediumFont, win)
     pg.display.flip()
@@ -412,7 +419,6 @@ def experimentExplanation(win):
 
 # instructions for the real trials
 def realInstructions(win):
-    
     win.fill(backgroundColor)
     multiLineMessage(realText, mediumFont, win)
     pg.display.flip()
@@ -420,7 +426,6 @@ def realInstructions(win):
 
 # break screen thanking the participant
 def breakScreen(win):
-
     win.fill(backgroundColor)
     multiLineMessage(breakScreenText, mediumFont, win)
     pg.display.flip()
@@ -428,7 +433,6 @@ def breakScreen(win):
 
 # exit screen thanking the participant
 def exitScreen(win):
-
     win.fill(backgroundColor)
     multiLineMessage(exitScreenText, mediumFont, win)
     pg.display.flip()

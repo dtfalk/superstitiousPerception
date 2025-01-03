@@ -134,6 +134,7 @@ def main():
     
     # showing the user the experiment
     questions(subjectNumber, win)
+    experimentIntro(win)
     experimentExplanation(win)
     pg.event.clear()
     realInstructions(win)
