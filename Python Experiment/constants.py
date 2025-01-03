@@ -117,7 +117,8 @@ validLetters, validNumbers = getValidChars()
 
 explanationText = 'In this task you will be shown a series of squares which contain a pattern of black and white dots. \
 In half of the trials, a black H will be present in the pattern. You will be asked to determine whether or not the H is in the image. \
-It will be very difficult to make this determination, but trust your intuition. \
+It will be very difficult to make this determination, but please trust your intuition. \
+You will be stretching the limits of your perception, but previous research shows that people are quite good at this task, even when they feel like they do not think they are doing well.\
 The H will not be obvious, but it is always centered, and you will be shown an image of the H for reference before you begin.\n\n\
 For each image, please press "Y" if you believe that you see the H and \
 press "N" if you do not believe that you see the H.\n\n\
