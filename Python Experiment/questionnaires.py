@@ -3,7 +3,7 @@ import pygame as pg
 from constants import *
 import sys
 import os
-from helperFunctions import multiLineMessage
+from helperFunctions import multiLineMessage, waitKey
 import csv
 
 # class for the buttons the user will see
@@ -228,14 +228,17 @@ def tellegen(subjectNumber, win):
     responses = [] # for storing answers to each question
 
     # iterate over each question and display to user
-    for question in questions:
-        
+    for i, question in enumerate(questions):
+
         response = None
 
+        if i == 0:
+            multiLineMessage(telleganScaleText, mediumFont, win)
+            pg.display.flip()
+            waitKey(pg.K_SPACE)
+
         # draw the question and return how far down the screen the text goes
-        yPos = 0
-        for question in questions:
-            yPos = max(yPos, multiLineMessage(question[0], mediumFont, win))
+        yPos = multiLineMessage(question[0], mediumFont, win)
 
         # create all of the options for this particular questions
         buttons = [submitButton]
@@ -274,7 +277,8 @@ def tellegen(subjectNumber, win):
         writer = csv.writer(f)
         header = [f'Q{i + 1}' for i in range(len(questions))]
         writer.writerow(header)
-        writer.writerow([responses])
+        assert(len(responses) == 34)
+        writer.writerow(responses)
     return
 
 # contains questionnaire questions and displays questionnaire to the subject
@@ -285,65 +289,68 @@ def launay_slade(subjectNumber, win):
 
     # question 1 text and response options
     question1 = 'Sometimes a passing thought will seem so real that it frightens me.'
-    ResponseOptions1 = ['1 - Not at all like me', '2', '3', '4 - Moderately like me [-]', '5 - Moderately like me [+]', '6', '7', '8 - Extremely like me']
+    ResponseOptions1 = ['1 - Not at all like me', '2', '3', '4', '5', '6', '7', '8 - Extremely like me']
     questions.append([question1] + ResponseOptions1)
 
     question2 = 'Sometimes my thoughts seem as real as actual events in my life.'
-    ResponseOptions2 = ['1 - Not at all like me', '2', '3', '4 - Moderately like me [-]', '5 - Moderately like me [+]', '6', '7', '8 - Extremely like me']
+    ResponseOptions2 = ['1 - Not at all like me', '2', '3', '4', '5', '6', '7', '8 - Extremely like me']
     questions.append([question2] + ResponseOptions2)
 
     question3 = 'No matter how much I try to concentrate on my work unrelated thoughts always creep into my mind.'
-    ResponseOptions3 = ['1 - Not at all like me', '2', '3', '4 - Moderately like me [-]', '5 - Moderately like me [+]', '6', '7', '8 - Extremely like me']
+    ResponseOptions3 = ['1 - Not at all like me', '2', '3', '4', '5', '6', '7', '8 - Extremely like me']
     questions.append([question3] + ResponseOptions3)
 
     question4 = "In the past I have had the experience of hearing a person's voice and then found that there was no one there."
-    ResponseOptions4 = ['1 - Not at all like me', '2', '3', '4 - Moderately like me [-]', '5 - Moderately like me [+]', '6', '7', '8 - Extremely like me']
+    ResponseOptions4 = ['1 - Not at all like me', '2', '3', '4', '5', '6', '7', '8 - Extremely like me']
     questions.append([question4] + ResponseOptions4)
 
     question5 = 'The sounds I hear in my daydreams are generally clear and distinct.'
-    ResponseOptions5 = ['1 - Not at all like me', '2', '3', '4 - Moderately like me [-]', '5 - Moderately like me [+]', '6', '7', '8 - Extremely like me']
+    ResponseOptions5 = ['1 - Not at all like me', '2', '3', '4', '5', '6', '7', '8 - Extremely like me']
     questions.append([question5] + ResponseOptions5)
 
     question6 = 'The people in my daydreams seem so true to life that I sometimes think they are.'
-    ResponseOptions6 = ['1 - Not at all like me', '2', '3', '4 - Moderately like me [-]', '5 - Moderately like me [+]', '6', '7', '8 - Extremely like me']
+    ResponseOptions6 = ['1 - Not at all like me', '2', '3', '4', '5', '6', '7', '8 - Extremely like me']
     questions.append([question6] + ResponseOptions6)
 
     question7 = 'In my daydreams I can hear the sound of a tune almost as clearly as if I were actually listening to it.'
-    ResponseOptions7 = ['1 - Not at all like me', '2', '3', '4 - Moderately like me [-]', '5 - Moderately like me [+]', '6', '7', '8 - Extremely like me']
+    ResponseOptions7 = ['1 - Not at all like me', '2', '3', '4', '5', '6', '7', '8 - Extremely like me']
     questions.append([question7] + ResponseOptions7)
 
     question8 = 'I often hear a voice speaking my thoughts aloud.'
-    ResponseOptions8 = ['1 - Not at all like me', '2', '3', '4 - Moderately like me [-]', '5 - Moderately like me [+]', '6', '7', '8 - Extremely like me']
+    ResponseOptions8 = ['1 - Not at all like me', '2', '3', '4', '5', '6', '7', '8 - Extremely like me']
     questions.append([question8] + ResponseOptions8)
 
     question9 = 'have never been troubled by hearing voices in my head.'
-    ResponseOptions9 = ['1 - Not at all like me', '2', '3', '4 - Moderately like me [-]', '5 - Moderately like me [+]', '6', '7', '8 - Extremely like me']
+    ResponseOptions9 = ['1 - Not at all like me', '2', '3', '4', '5', '6', '7', '8 - Extremely like me']
     questions.append([question9] + ResponseOptions9)
     
     question10 = 'On occasions I have seen a person’s face in front of me when no one was in fact there.'
-    ResponseOptions10 = ['1 - Not at all like me', '2', '3', '4 - Moderately like me [-]', '5 - Moderately like me [+]', '6', '7', '8 - Extremely like me']
+    ResponseOptions10 = ['1 - Not at all like me', '2', '3', '4', '5', '6', '7', '8 - Extremely like me']
     questions.append([question10] + ResponseOptions10)
 
     question11 = 'I have never heard the voice of the Devil.'
-    ResponseOptions11 = ['1 - Not at all like me', '2', '3', '4 - Moderately like me [-]', '5 - Moderately like me [+]', '6', '7', '8 - Extremely like me']
+    ResponseOptions11 = ['1 - Not at all like me', '2', '3', '4', '5', '6', '7', '8 - Extremely like me']
     questions.append([question11] + ResponseOptions11)
 
     question12 = "In the past I have heard the voice of God speaking to me."
-    ResponseOptions12 = ['1 - Not at all like me', '2', '3', '4 - Moderately like me [-]', '5 - Moderately like me [+]', '6', '7', '8 - Extremely like me']
+    ResponseOptions12 = ['1 - Not at all like me', '2', '3', '4', '5', '6', '7', '8 - Extremely like me']
     questions.append([question12] + ResponseOptions12)
 
     submitButton = Button('submit', 'launay', 'Submit', -1, 0) # submit button
     responses = [] # for storing answers to each question
 
     # iterate over each question and display to user
-    for question in questions:
+    for i, question in enumerate(questions):
         
+        if i == 0:
+            multiLineMessage(launeyScaleText, mediumFont, win)
+            pg.display.flip()
+            waitKey(pg.K_SPACE)
+
         response = None
 
         # draw the question and return how far down the screen the text goes
-        yPos = 0
-        for question in questions:
-            yPos = max(yPos, multiLineMessage(question[0], mediumFont, win))
+        yPos = multiLineMessage(question[0], mediumFont, win)
 
         # create all of the options for this particular questions
         buttons = [submitButton]
@@ -383,6 +390,7 @@ def launay_slade(subjectNumber, win):
         writer = csv.writer(f)
         header = [f'Q{i + 1}' for i in range(len(questions))]
         writer.writerow(header)
+        assert(len(responses) == 12)
         writer.writerow([''.join([ch for ch in response if ch.isdigit()]) for response in responses])
     return
 
@@ -509,7 +517,13 @@ def dissociative_experiences(subjectNumber, win):
     responses = [] # for storing answers to each question
 
     # iterate over each question and display to user
-    for question in questions:
+    for i, question in enumerate(questions):
+
+        # instructions
+        if i == 0:
+            multiLineMessage(dissociativeExperiencesText, mediumFont, win)
+            pg.display.flip()
+            waitKey(pg.K_SPACE)
 
         # draw the question and return how far down the screen the text goes
         yPos = multiLineMessage(question[0], mediumFont, win)
@@ -536,7 +550,7 @@ def dissociative_experiences(subjectNumber, win):
                             and (button.coords[1] <= pg.mouse.get_pos()[1] <= button.coords[1] + button.coords[3]):
                             response = button.handleClick(buttons)
 
-            # draw the question and return how far down the screen the text goes
+            # draw the question
             multiLineMessage(question[0], mediumFont, win)
 
             # draw the submit button and display each checkbox
@@ -553,6 +567,7 @@ def dissociative_experiences(subjectNumber, win):
         writer = csv.writer(f)
         header = [f'Q{i + 1}' for i in range(len(questions))]
         writer.writerow(header)
+        assert(len(responses) == 28)
         writer.writerow([''.join([ch for ch in response if ch.isdigit()]) for response in responses])
     return
 
