@@ -46,8 +46,8 @@ def createBalancedImage():
     if num_pixels % 2 != 0:
         half_pixels += 1
 
-    # Create a balanced array of 0s and 255s
-    image_array = np.array([0] * half_pixels + [255]  *(num_pixels - half_pixels))
+    # Create a balanced array of 0s and 1s
+    image_array = np.array([0] * half_pixels + [1]  * (num_pixels - half_pixels))
     np.random.shuffle(image_array)
     return image_array.reshape((imageHeight, imageWidth)).astype(np.uint8)
 

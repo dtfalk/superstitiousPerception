@@ -19,4 +19,4 @@ relevantPointSchemes = ['anyAll', 'borders']
 weightingSchemes = ['linear', 'quadratic', 'logarithmic', 'gaussian', 'central', 'unweighted']
 
 
-sigma = 1 # constant for gaussian measure
+sigma = 3 # constant for gaussian measure
