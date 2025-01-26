@@ -22,14 +22,6 @@ def saveImage(image, stimuliNumber, imagesFolderPath):
     image.save(imageName)
     image.close()
 
-# takes an array and turns it into batchSize number of images
-def createImages(array):
-    images = []
-    for imageArray in array:
-        image = Image.fromarray((imageArray * 255), mode = 'L')
-        images.append(image) 
-    return images
-
 # Function to save a batch of images using threading
 def saveBatch(images, start, imagesPath):
     with concurrent.futures.ThreadPoolExecutor() as thread_executor:
@@ -40,22 +32,24 @@ def saveBatch(images, start, imagesPath):
             future.result()
 
 def createBalancedImage():
-    num_pixels = imageHeight * imageWidth
-    half_pixels = num_pixels // 2
-    # Adjust for odd total number of pixels
-    if num_pixels % 2 != 0:
-        half_pixels += 1
+    image_array = np.random.choice(a = [0,1], size = (imageHeight, imageWidth)).astype(np.uint8)
+    return image_array
+    # num_pixels = imageHeight * imageWidth
+    # half_pixels = num_pixels // 2
+    # # Adjust for odd total number of pixels
+    # if num_pixels % 2 != 0:
+    #     half_pixels += 1
 
-    # Create a balanced array of 0s and 1s
-    image_array = np.array([0] * half_pixels + [1]  * (num_pixels - half_pixels))
-    np.random.shuffle(image_array)
-    return image_array.reshape((imageHeight, imageWidth)).astype(np.uint8)
+    # # Create a balanced array of 0s and 1s
+    # image_array = np.array([0] * half_pixels + [1]  * (num_pixels - half_pixels))
+    # np.random.shuffle(image_array)
+    # return image_array.reshape((imageHeight, imageWidth)).astype(np.uint8)
 
 def createImages(batch_size):
     images = []
     for _ in range(batch_size):
         balanced_image_array = createBalancedImage()
-        image = Image.fromarray(balanced_image_array, mode='L')
+        image = Image.fromarray(balanced_image_array * 255, mode='L')
         images.append(image)
     return images
 
@@ -71,7 +65,7 @@ def createAndSaveBatch(start, imagesPath, arraysPath):
     images = createImages(batchSize)
 
     # Save images and arrays
-    array = np.stack([np.array(img) for img in images])  # Stack images to create 3D array
+    array = np.stack(np.array([np.array(img) // 255 for img in images], np.uint8))  # Stack images to create 3D array
     np.save(os.path.join(arraysPath, f'{start}.npy'), array)  # Save array
     
     # Save individual images

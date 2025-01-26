@@ -39,7 +39,7 @@ def main():
             os.makedirs(templateSaveFolder, exist_ok = True)
             writeData(principalComponents, explainedVariance, templateSaveFolder)
 
-    print('            Runtime for H/I/Features Principal Component Analysis: %.4f seconds'%(time.time() - startTime))
+    print('            Runtime for H/V Principal Component Analysis: %.4f seconds'%(time.time() - startTime))
     
 
 if __name__ == '__main__':

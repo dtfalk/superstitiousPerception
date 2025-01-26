@@ -1,6 +1,9 @@
 **/arraysAndImages
 **/results
+**/Howard_Results
 **/__pycache__
 *.png
-**/stats.txt
-
+**/stats_v.txt
+**/stats_i.txt
+**/list_names_i.txt
+**/list_names_v.txt

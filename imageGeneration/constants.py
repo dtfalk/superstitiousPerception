@@ -3,7 +3,7 @@ numImages = 10 ** 6
 
 # image width and height and as a tuple
 # make sure image width is an odd number so that there is a true middle to the screen
-imageWidth, imageHeight = 51, 51
+imageWidth, imageHeight = 50, 50
 imageSize = (imageHeight, imageWidth)
 
 # find screen center

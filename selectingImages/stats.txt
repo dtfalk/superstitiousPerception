@@ -1,0 +1,70 @@
+Loaded results into dictionaries 4.1547 seconds
+
+
+
+Example Gaussian H Stimulus
+Stimulus Number: 940115
+(h_score, i_score): ('0.093418136', '-0.0084761195')
+Largest index for unweighted Hs: 1058
+Largest index for gaussian Hs: 992
+Length of H list (unweighted, gaussian): 200, 200
+Selected H stimuli: 1.9037 seconds
+
+Largest index for unweighted Vs: 592
+Largest index for gaussian Vs: 461
+Length of V lists (unweighted, gaussian): 100, 100
+Selected V stimuli: 2.0261 seconds
+
+
+
+Example Uncorrelated Stimulus
+Stimulus Number: 322231
+(h_score, i_score): ('-0.00016669271', '0.0004362457')
+Length of uncorrelated lists (unweighted, gaussian): 100, 100
+Selected Uncorrelated stimuli: 1.3467 seconds
+
+Unweighted Uncorrelated Hs Statistics
+===========================
+H stats: min=0.061619315, max=0.0848028, mean=0.06699266918999999, std=0.004704283096852475
+V stats: min=-0.00935611, max=0.009912259, mean=0.0022124475410499993, std=0.0059041163348191525
+
+Unweighted V-Correlated Hs Statistics
+===========================
+H stats: min=0.061708096, max=0.08394107, mean=0.06702565587999999, std=0.004741402276553606
+V stats: min=-0.009981198, max=0.009863512, mean=0.0012798137808000005, std=0.005717273303139892
+
+Gaussian Uncorrelated Hs Statistics
+===========================
+H stats: min=0.09342026, max=0.13742526, mean=0.10118941846000001, std=0.006987492807047509
+V stats: min=-0.009337017, max=0.0099808145, mean=-9.348723434000004e-05, std=0.005383312556617653
+
+Gaussian V-Correlated Hs Statistics
+===========================
+H stats: min=0.093437575, max=0.13354123, mean=0.10112422153, std=0.006728885012497274
+V stats: min=-0.008954764, max=0.0099559715, mean=0.0012448388893, std=0.005369250296581121
+
+Unweighted Vs Statistics
+===========================
+H stats: min=-0.009763922, max=0.009973163, mean=0.0024172791473, std=0.005809315946158104
+V stats: min=0.06462172, max=0.090822354, mean=0.06997486693999998, std=0.005423051260799645
+
+Gaussian Vs Statistics
+===========================
+H stats: min=-0.009998129, max=0.009938244, mean=0.0014635947532000001, std=0.005976372670209772
+V stats: min=0.12503912, max=0.17330122, mean=0.13519625570000002, std=0.01077741207686987
+
+Unweighted Uncorrelated Statistics
+===========================
+H stats: min=-7.505032e-05, max=7.505032e-05, mean=3.7559286037779993e-06, std=5.7516719369069646e-05
+V stats: min=-2.3083285e-05, max=2.3080347e-05, mean=1.155987896706e-06, std=1.7686255521627636e-05
+
+Gaussian Uncorrelated Statistics
+===========================
+H stats: min=-0.000523517, max=0.00051023293, mean=4.1968361984999994e-05, std=0.00023046840083188638
+V stats: min=-0.00054162, max=0.00054746476, mean=-4.964110680000006e-06, std=0.00025609407444935034
+
+Copied and saved all stimuli images: 0.6952 seconds
+
+No image overlap confirmed!
+
+Total Runtime: 10.13680362701416 seconds

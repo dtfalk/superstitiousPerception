@@ -13,11 +13,11 @@ def load_dictionaries():
 
     # Paths to the Unweighted Hs and Is
     HPathUnweighted = os.path.join(curDir, '..', 'results', 'hiAnalysis', 'results', 'H', 'anyAll', 'unweighted', 'pearsonScores.csv')
-    IPathUnweighted = os.path.join(curDir, '..', 'results', 'hiAnalysis', 'results', 'I', 'anyAll', 'unweighted', 'pearsonScores.csv')
+    IPathUnweighted = os.path.join(curDir, '..', 'results', 'hiAnalysis', 'results', 'V', 'anyAll', 'unweighted', 'pearsonScores.csv')
     
     # Paths to the Gaussian-Weighted Hs and Is
     HPathGaussian = os.path.join(curDir, '..', 'results', 'hiAnalysis', 'results', 'H', 'anyAll', 'gaussian', 'pearsonScores.csv')
-    IPathGaussian = os.path.join(curDir, '..', 'results', 'hiAnalysis', 'results', 'I', 'anyAll', 'gaussian', 'pearsonScores.csv')
+    IPathGaussian = os.path.join(curDir, '..', 'results', 'hiAnalysis', 'results', 'V', 'anyAll', 'gaussian', 'pearsonScores.csv')
 
     # Dictionaries to store results for quicker lookups
     H_Unweighted = {}
@@ -77,11 +77,11 @@ def selecting_H_stimuli(H_Unweighted_Scores, I_Unweighted_Scores, H_Gaussian_Sco
     selectingUnweighted = True # setting the category we are selecting for
 
     # Iterate until we get 200 stimulus in each category
-    while len(gaussian_Hs) < 200 or len(unweighted_Hs) < 200:
+    while len(gaussian_Hs) < 201 or len(unweighted_Hs) < 200:
 
-        if selectingUnweighted:
+        if selectingUnweighted and len(unweighted_Hs) < 200:
             for stimulus, _ in sorted_unweighted.items():
-
+                
                 # if it has already been selected or its I score is too high, then skip it
                 if stimulus in used:
                     continue
@@ -89,22 +89,31 @@ def selecting_H_stimuli(H_Unweighted_Scores, I_Unweighted_Scores, H_Gaussian_Sco
                 # add it to the list of unweighted Hs
                 unweighted_Hs.append(stimulus)
                 used.add(stimulus)
+                lastUnweighted = stimulus
                 break
         else:
-            for stimulus, _ in sorted_gaussian.items():
+            for stimulus, scores in sorted_gaussian.items():
 
                 # if it has already been selected or its I score is too high, then skip it
                 if stimulus in used:
                     continue
+
+                if len(gaussian_Hs) == 200:
+                    print(f'\n\nExample Gaussian H Stimulus\nStimulus Number: {stimulus}\n(h_score, i_score): {scores}')
+                    gaussian_Hs.append(stimulus)
+                    break
                 
                 # add it to the list of gaussian Hs
                 gaussian_Hs.append(stimulus)
                 used.add(stimulus)
+                lastGaussian = stimulus
                 break
 
         # flip which weighting scheme (unweighted vs gaussian) we are selecting for
         selectingUnweighted = not selectingUnweighted
-    
+    gaussian_Hs = gaussian_Hs[:200]
+    print(f'Largest index for unweighted Hs: {list(H_Unweighted_Scores.keys()).index(lastUnweighted)}')
+    print(f'Largest index for gaussian Hs: {list(H_Gaussian_Scores.keys()).index(lastGaussian)}')
     print(f'Length of H list (unweighted, gaussian): {len(unweighted_Hs)}, {len(gaussian_Hs)}')
     return unweighted_Hs, gaussian_Hs, used
 
@@ -153,6 +162,7 @@ def selecting_I_stimuli(H_Unweighted_Scores, I_Unweighted_Scores, H_Gaussian_Sco
                 # add it to the list of unweighted Hs
                 unweighted_Is.append(stimulus)
                 used.add(stimulus)
+                lastUnweighted = stimulus
                 break
         else:
             for stimulus, _ in sorted_gaussian.items():
@@ -164,12 +174,15 @@ def selecting_I_stimuli(H_Unweighted_Scores, I_Unweighted_Scores, H_Gaussian_Sco
                 # add it to the list of gaussian Hs
                 gaussian_Is.append(stimulus)
                 used.add(stimulus)
+                lastGaussian = stimulus
                 break
 
         # flip which list we are selecting for
         selectingUnweighted = not selectingUnweighted
-    
-    print(f'Length of I lists (unweighted, gaussian): {len(unweighted_Is)}, {len(gaussian_Is)}')
+
+    print(f'Largest index for unweighted Vs: {list(I_Unweighted_Scores.keys()).index(lastUnweighted)}')
+    print(f'Largest index for gaussian Vs: {list(I_Gaussian_Scores.keys()).index(lastGaussian)}')
+    print(f'Length of V lists (unweighted, gaussian): {len(unweighted_Is)}, {len(gaussian_Is)}')
     return unweighted_Is, gaussian_Is, used
 
 # Helper function for subsetting the dictionaries for the uncorrelated stimuli
@@ -181,19 +194,18 @@ def filter_uncorrelated_stimuli_by_condition(H_Unweighted_Scores, I_Unweighted_S
     # Iterate over the unweighted stimuli and apply the condition
     for stimulus, h_score in H_Unweighted_Scores.items():
         i_score = I_Unweighted_Scores.get(stimulus)  # Get the corresponding I score
-        if i_score is not None and abs(float(h_score)) < 0.001 and abs(float(i_score)) < 0.001:
+        if i_score is not None and abs(float(h_score)) < 0.00316 and abs(float(i_score)) < 0.00316:
             unweighted_filtered[stimulus] = (h_score, i_score)  # Store both scores for unweighted
 
     # Iterate over the Gaussian stimuli and apply the condition
     for stimulus, h_score in H_Gaussian_Scores.items():
         i_score = I_Gaussian_Scores.get(stimulus)  # Get the corresponding I score
-        if i_score is not None and abs(float(h_score)) < 0.001 and abs(float(i_score)) < 0.001:
+        if i_score is not None and abs(float(h_score)) < 0.00316 and abs(float(i_score)) < 0.00316:
             gaussian_filtered[stimulus] = (h_score, i_score)  # Store both scores for gaussian
-    
+
     # Sort the filtered dicts of stimuli by the sum of the two scores in descending order
     sorted_unweighted = dict(sorted(unweighted_filtered.items(), key=lambda item: abs(float(item[1][0])) + abs(float(item[1][1]))))
     sorted_gaussian = dict(sorted(gaussian_filtered.items(), key=lambda item: abs(float(item[1][0])) + abs(float(item[1][1]))))
-
     assert(len(sorted_gaussian) >= 100 and len(sorted_unweighted) >= 100)
 
     return sorted_unweighted, sorted_gaussian
@@ -210,9 +222,9 @@ def selecting_uncorrelated_stimuli(H_Unweighted_Scores, I_Unweighted_Scores, H_G
     selectingUnweighted = True # setting the category we are selecting for
 
     # Iterate until we get 200 stimulus in each category
-    while len(gaussian_uncorrelated) < 100 or len(unweighted_uncorrelated) < 100:
+    while len(gaussian_uncorrelated) < 101 or len(unweighted_uncorrelated) < 100:
 
-        if selectingUnweighted:
+        if selectingUnweighted and len(unweighted_uncorrelated) < 100:
             for stimulus, _ in sorted_unweighted.items():
 
                 # if it has already been selected or its I score is too high, then skip it
@@ -224,12 +236,17 @@ def selecting_uncorrelated_stimuli(H_Unweighted_Scores, I_Unweighted_Scores, H_G
                 used.add(stimulus)
                 break
         else:
-            for stimulus, _ in sorted_gaussian.items():
+            for stimulus, scores in sorted_gaussian.items():
 
                 # if it has already been selected or its I score is too high, then skip it
                 if stimulus in used:
                     continue
                 
+                if len(gaussian_uncorrelated) == 100:
+                    print(f'\n\nExample Uncorrelated Stimulus\nStimulus Number: {stimulus}\n(h_score, i_score): {scores}')
+                    gaussian_uncorrelated.append(stimulus)
+                    break
+
                 # add it to the list of gaussian Hs
                 gaussian_uncorrelated.append(stimulus)
                 used.add(stimulus)
@@ -237,7 +254,7 @@ def selecting_uncorrelated_stimuli(H_Unweighted_Scores, I_Unweighted_Scores, H_G
 
         # flip which list we are selecting for
         selectingUnweighted = not selectingUnweighted
-    
+    gaussian_uncorrelated = gaussian_uncorrelated[:100]
     print(f'Length of uncorrelated lists (unweighted, gaussian): {len(unweighted_uncorrelated)}, {len(gaussian_uncorrelated)}')
     return unweighted_uncorrelated, gaussian_uncorrelated, used
 
@@ -248,7 +265,7 @@ def print_statistics(values, H_scores, I_scores):
     I_values = [float(I_scores[stimulus]) for stimulus in values]
 
     print("H stats: min={}, max={}, mean={}, std={}".format(np.min(H_values), np.max(H_values), np.mean(H_values), np.std(H_values)))
-    print("I stats: min={}, max={}, mean={}, std={}\n".format(np.min(I_values), np.max(I_values), np.mean(I_values), np.std(I_values)))
+    print("V stats: min={}, max={}, mean={}, std={}\n".format(np.min(I_values), np.max(I_values), np.mean(I_values), np.std(I_values)))
 
 # This function splits the Hs into two blocks to be paired with either the Is or the uncorrelated
 # assuming the list in is descending order of pearson scores, split according to a snake
@@ -304,7 +321,7 @@ def main():
     # Gets the top 100 I stimuli for each category
     I_Select_Time = time()
     unweighted_Is, gaussian_Is, used = selecting_I_stimuli(H_Unweighted_Scores, I_Unweighted_Scores, H_Gaussian_Scores, I_Gaussian_Scores, used)
-    print('Selected I stimuli: %.4f seconds\n'%(time() - I_Select_Time))
+    print('Selected V stimuli: %.4f seconds\n'%(time() - I_Select_Time))
 
     # Gets the top 100 uncorrelated stimuli for each category 
     Uncorrelated_Select_Time = time()
@@ -325,7 +342,7 @@ def main():
     print("===========================")
     print_statistics(block_one_unweighted_H, H_Unweighted_Scores, I_Unweighted_Scores)
 
-    print("Unweighted I-Correlated Hs Statistics")
+    print("Unweighted V-Correlated Hs Statistics")
     print("===========================")
     print_statistics(block_two_unweighted_H, H_Unweighted_Scores, I_Unweighted_Scores)
 
@@ -336,17 +353,17 @@ def main():
     print("===========================")
     print_statistics(block_one_gaussian_H, H_Gaussian_Scores, I_Gaussian_Scores)
 
-    print("Gaussian I-Correlated Hs Statistics")
+    print("Gaussian V-Correlated Hs Statistics")
     print("===========================")
     print_statistics(block_two_gaussian_H, H_Gaussian_Scores, I_Gaussian_Scores)
 
     # Printing the statistics for the unweighted Is
-    print("Unweighted Is Statistics")
+    print("Unweighted Vs Statistics")
     print("===========================")
     print_statistics(unweighted_Is, H_Unweighted_Scores, I_Unweighted_Scores)
 
     # Printing the statistics for the gaussian Is
-    print("Gaussian Is Statistics")
+    print("Gaussian Vs Statistics")
     print("===========================")
     print_statistics(gaussian_Is, H_Gaussian_Scores, I_Gaussian_Scores)
 
@@ -368,11 +385,11 @@ def main():
     
     copySaveTime = time()
     save_batch(block_one_unweighted_H, 'unweightedUncorrelatedH')
-    save_batch(block_two_unweighted_H, 'unweightedICorrelatedH')
+    save_batch(block_two_unweighted_H, 'unweightedVCorrelatedH')
     save_batch(block_two_gaussian_H, 'gaussianUncorrelatedH')
-    save_batch(block_two_gaussian_H, 'gaussianICorrelatedH')
-    save_batch(unweighted_Is, 'unweightedI')
-    save_batch(gaussian_Is, 'gaussianI')
+    save_batch(block_two_gaussian_H, 'gaussianVCorrelatedH')
+    save_batch(unweighted_Is, 'unweightedV')
+    save_batch(gaussian_Is, 'gaussianV')
     save_batch(uncorrelated_unweighted, 'unweightedUncorrelated')
     save_batch(uncorrelated_gaussian, 'gaussianUncorrelated')
     save_batch(block_one_unweighted_H + block_two_unweighted_H + unweighted_Is + uncorrelated_unweighted, 'unweighted')

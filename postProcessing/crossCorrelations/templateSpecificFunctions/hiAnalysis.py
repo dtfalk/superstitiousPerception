@@ -31,7 +31,7 @@ def main():
     # create the composite images of the top stimuli for each scheme combination
     crossCorrelations(loadPath, savePath)
 
-    print('            Runtime for H/I/Features cross-correlations: %.4f seconds'%(time.time() - startTime))
+    print('            Runtime for H/V cross-correlations: %.4f seconds'%(time.time() - startTime))
 
 
 if __name__ == '__main__':

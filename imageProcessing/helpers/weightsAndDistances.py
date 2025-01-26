@@ -57,7 +57,7 @@ def getDistance(relevantPoints, rowIndices, colIndices):
     distances = sqrt(minSquaredDistances)
 
     # TODO: Modularize this assert
-    assert(distances.shape == (51, 51))
+    assert(distances.shape == (50, 50))
 
     return distances
 

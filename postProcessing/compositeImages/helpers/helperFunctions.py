@@ -8,7 +8,7 @@ import numpy as np
 import os
 from PIL import Image
 
-imageWidth, imageHeight = 51, 51
+imageWidth, imageHeight = 50, 50
 batchSize = 1000
 validFolderNames = ['anyAll', 'borders', 'gaussian', 'linear', 'quadratic', 'unweighted', 'logarithmic', 'central']
 
@@ -97,6 +97,9 @@ def getFolderPaths(csvPath, arrayPath, savePath):
 def compositeImages(csvPath, arrayPath, savePath):
     folderPaths = getFolderPaths(csvPath, arrayPath, savePath)
 
+    for folder in enumerate(folderPaths):
+        #print(folder)
+        processSingleFolder(folder[1])
     # Use a pool of workers to process folders in parallel
-    with Pool() as pool:
-        pool.map(processSingleFolder, folderPaths)
+    # with Pool() as pool:
+    #     pool.map(processSingleFolder, folderPaths)

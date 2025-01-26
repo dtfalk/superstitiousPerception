@@ -23,7 +23,7 @@ def main():
     #fullCrosses()
     #halfCrosses()
     hi()
-    features()
+    #features()
     #sImage()
 
     # run code for creating stimuli

@@ -28,7 +28,7 @@ def main():
     # create the statistic CSVs for each scheme combination
     loadAndSave(loadAndSavePath)
 
-    print('            Runtime for H/I/Features general statistics: %.4f seconds'%(time.time() - startTime))
+    print('            Runtime for H/V general statistics: %.4f seconds'%(time.time() - startTime))
 
 if __name__ == '__main__':
     main()

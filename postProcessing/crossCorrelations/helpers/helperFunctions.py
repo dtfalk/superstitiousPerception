@@ -3,7 +3,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.join(os.path.abspath(__file__)))))))
 from postProcessing.crossCorrelations.helpers.imports import *
 
-imageWidth, imageHeight = 51, 51
+imageWidth, imageHeight = 50, 50
 batchSize = 1000
 validFolderNames = ['anyAll', 'borders', 'central', 'linear', 'gaussian', 'quadratic', 'logarithmic', 'unweighted']
 

@@ -39,7 +39,7 @@ def main():
     # create the CSVs for each scheme combination
     createCSVs(pearsonData, indicesDictionary, savePath)
 
-    print('            Runtime for extracting H/I/Features Pearson CSV data: %.4f seconds'%(time.time() - startTime))
+    print('            Runtime for extracting H/V Pearson CSV data: %.4f seconds'%(time.time() - startTime))
 
 if __name__ == '__main__':
     main()

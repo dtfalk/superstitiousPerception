@@ -28,7 +28,7 @@ def getPaths():
 # main portion of the code (look here for general code flow/structure)
 def main():
 
-    imageDimensions = (51, 51)
+    imageDimensions = (50, 50)
     # start time so we can track how long it takes the code to run in the terminal
     startTime = time.time()
 

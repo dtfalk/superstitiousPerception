@@ -33,7 +33,7 @@ def main():
 
     # create the composite images of the top stimuli for each scheme combination
     compositeImages(CSVPath, arrayPath, savePath)
-    print('            Runtime for H/I/Features composite images: %.4f seconds'%(time.time() - startTime))
+    print('            Runtime for H/V composite images: %.4f seconds'%(time.time() - startTime))
 
 
 if __name__ == '__main__':
